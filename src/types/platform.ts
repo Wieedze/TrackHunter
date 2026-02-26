@@ -37,6 +37,7 @@ export interface PlatformResult {
   previewUrl?: string;
   artworkUrl?: string;
   confidence: number;
+  manualSearch?: boolean;
   extras?: {
     bpm?: number;
     key?: string;

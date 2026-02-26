@@ -5,18 +5,22 @@ import { TextParser } from '../services/import/TextParser.ts';
 import { LinkResolver } from '../services/import/LinkResolver.ts';
 import { SearchOrchestrator } from '../services/search/SearchOrchestrator.ts';
 import { ResultAggregator } from '../services/search/ResultAggregator.ts';
-import { DeezerProvider } from '../services/providers/DeezerProvider.ts';
 import { MusicBrainzProvider } from '../services/providers/MusicBrainzProvider.ts';
 import { BandcampProvider } from '../services/providers/BandcampProvider.ts';
 import { BeatportProvider } from '../services/providers/BeatportProvider.ts';
+import { TraxsourceProvider } from '../services/providers/TraxsourceProvider.ts';
+import { DiscogsProvider } from '../services/providers/DiscogsProvider.ts';
 import type { Playlist, TrackResult } from '../types/track.ts';
 
 // Singleton orchestrator with all available providers
-// Bandcamp + Beatport require the Cloudflare Worker running (npm run dev in worker/)
+// Bandcamp + Traxsource require the Cloudflare Worker running (npm run dev in worker/)
+// Beatport generates manual search links (no Worker needed)
+// MusicBrainz, Discogs use direct APIs (no Worker needed)
 const orchestrator = new SearchOrchestrator([
-  new DeezerProvider(),
   new MusicBrainzProvider(),
+  new DiscogsProvider(),
   new BandcampProvider(),
+  new TraxsourceProvider(),
   new BeatportProvider(),
 ]);
 

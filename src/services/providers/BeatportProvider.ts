@@ -2,63 +2,31 @@ import { Platform } from '../../types/platform.ts';
 import type { PlatformResult } from '../../types/platform.ts';
 import type { TrackQuery } from '../../types/search.ts';
 import { BaseProvider } from './BaseProvider.ts';
-import { proxyFetch } from '../proxy.ts';
-
-interface BeatportScrapedResult {
-  title: string;
-  artist: string;
-  url: string;
-  price?: number;
-  bpm?: number;
-  key?: string;
-  genre?: string;
-  label?: string;
-  artworkUrl?: string;
-}
-
-interface BeatportResponse {
-  platform: string;
-  query: string;
-  results: BeatportScrapedResult[];
-}
 
 /**
- * Beatport Provider — searches via Cloudflare Worker proxy (scraping).
+ * Beatport Provider — generates a manual search link.
+ * Beatport is fully JS-rendered so scraping doesn't work from a Worker.
+ * Instead we provide a direct search URL for the user to click.
  */
 export class BeatportProvider extends BaseProvider {
   platform = Platform.BEATPORT as const;
 
   async search(query: TrackQuery): Promise<PlatformResult[]> {
-    const response = await proxyFetch('beatport', `${query.artist} ${query.title}`);
-    const data = response as BeatportResponse;
+    const searchTerm = `${query.artist} ${query.title}`;
+    const url = `https://www.beatport.com/search?q=${encodeURIComponent(searchTerm)}`;
 
-    if (!data.results || !Array.isArray(data.results)) return [];
-
-    return data.results.map((item) => ({
+    return [{
       platform: Platform.BEATPORT,
-      url: item.url,
-      title: item.title,
-      artist: item.artist,
-      artworkUrl: item.artworkUrl,
+      url,
+      title: query.title,
+      artist: query.artist,
       available: true,
-      price: item.price,
-      confidence: this.computeConfidence(query, {
-        title: item.title,
-        artist: item.artist,
-      }),
-      extras: {
-        bpm: item.bpm,
-        key: item.key,
-      },
-    }));
+      confidence: 0,
+      manualSearch: true,
+    }];
   }
 
   async isAvailable(): Promise<boolean> {
-    try {
-      const response = await proxyFetch('beatport', 'test');
-      return response != null;
-    } catch {
-      return false;
-    }
+    return true;
   }
 }

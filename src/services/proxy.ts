@@ -11,11 +11,13 @@ const WORKER_URL = import.meta.env.VITE_WORKER_URL ?? 'http://localhost:8787';
 export async function proxyFetch(
   platform: 'bandcamp' | 'beatport' | 'traxsource',
   query: string,
+  params?: Record<string, string>,
 ): Promise<unknown> {
-  const url = `${WORKER_URL}/scrape/${platform}?q=${encodeURIComponent(query)}`;
+  const searchParams = new URLSearchParams({ q: query, ...params });
+  const url = `${WORKER_URL}/scrape/${platform}?${searchParams.toString()}`;
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 10000); // 10s timeout
+  const timeout = setTimeout(() => controller.abort(), 15000); // 15s timeout
 
   try {
     const response = await fetch(url, { signal: controller.signal });

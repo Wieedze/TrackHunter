@@ -22,17 +22,41 @@ interface BandcampResponse {
 
 /**
  * Bandcamp Provider — searches via Cloudflare Worker proxy (scraping).
+ * Searches both tracks and albums to maximize coverage.
  */
 export class BandcampProvider extends BaseProvider {
   platform = Platform.BANDCAMP as const;
 
   async search(query: TrackQuery): Promise<PlatformResult[]> {
-    const response = await proxyFetch('bandcamp', `${query.artist} ${query.title}`);
-    const data = response as BandcampResponse;
+    const searchTerm = `${query.artist} ${query.title}`;
 
-    if (!data.results || !Array.isArray(data.results)) return [];
+    // Search tracks and albums in parallel
+    const [trackResults, albumResults] = await Promise.allSettled([
+      proxyFetch('bandcamp', searchTerm, { type: 't' }) as Promise<BandcampResponse>,
+      proxyFetch('bandcamp', searchTerm, { type: 'a' }) as Promise<BandcampResponse>,
+    ]);
 
-    return data.results.map((item) => ({
+    const all: PlatformResult[] = [];
+
+    if (trackResults.status === 'fulfilled' && Array.isArray(trackResults.value.results)) {
+      all.push(...this.mapResults(trackResults.value.results, query));
+    }
+
+    if (albumResults.status === 'fulfilled' && Array.isArray(albumResults.value.results)) {
+      all.push(...this.mapResults(albumResults.value.results, query));
+    }
+
+    // Deduplicate by URL
+    const seen = new Set<string>();
+    return all.filter((r) => {
+      if (seen.has(r.url)) return false;
+      seen.add(r.url);
+      return true;
+    });
+  }
+
+  private mapResults(items: BandcampScrapedResult[], query: TrackQuery): PlatformResult[] {
+    return items.map((item) => ({
       platform: Platform.BANDCAMP,
       url: item.url,
       title: item.title,
