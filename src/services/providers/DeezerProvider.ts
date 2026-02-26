@@ -24,7 +24,7 @@ interface DeezerSearchResponse {
  * Also provides 30s preview URLs for free.
  */
 export class DeezerProvider extends BaseProvider {
-  platform = Platform.DEEZER as const;
+  platform = Platform.DEEZER;
 
   private baseUrl = 'https://api.deezer.com';
 

@@ -9,7 +9,7 @@ import { BaseProvider } from './BaseProvider.ts';
  * Instead we provide a direct search URL for the user to click.
  */
 export class BeatportProvider extends BaseProvider {
-  platform = Platform.BEATPORT as const;
+  platform = Platform.BEATPORT;
 
   async search(query: TrackQuery): Promise<PlatformResult[]> {
     const searchTerm = `${query.artist} ${query.title}`;

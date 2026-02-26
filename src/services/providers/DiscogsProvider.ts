@@ -11,7 +11,7 @@ const DISCOGS_TOKEN = import.meta.env.VITE_DISCOGS_TOKEN as string | undefined;
  * Get a free token at: https://www.discogs.com/settings/developers
  */
 export class DiscogsProvider extends BaseProvider {
-  platform = Platform.DISCOGS as const;
+  platform = Platform.DISCOGS;
 
   async search(query: TrackQuery): Promise<PlatformResult[]> {
     const searchTerm = `${query.artist} ${query.title}`;

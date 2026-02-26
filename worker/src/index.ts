@@ -2,17 +2,23 @@
  * TrackHunter — Cloudflare Worker (CORS Proxy + Scraper)
  *
  * Routes:
- *   GET /health             → Health check
- *   GET /scrape/bandcamp    → Scrape Bandcamp search results
- *   GET /scrape/beatport    → Scrape Beatport search results
- *   GET /scrape/traxsource  → Scrape Traxsource search results
+ *   GET /health                  → Health check
+ *   GET /scrape/bandcamp         → Scrape Bandcamp search results
+ *   GET /scrape/beatport         → Scrape Beatport search results
+ *   (Traxsource: manual search link only — blocks Worker requests)
+ *   GET /scrape/soundcloud       → Scrape SoundCloud set tracks
+ *   GET /api/spotify/playlist    → Fetch Spotify playlist tracks (Client Credentials)
  */
 
 import { scrapeBandcamp } from './scrapers/bandcamp.ts';
 import { scrapeBeatport } from './scrapers/beatport.ts';
-import { scrapeTraxsource } from './scrapers/traxsource.ts';
+import { scrapeSoundCloudSet } from './scrapers/soundcloud.ts';
+import { fetchSpotifyPlaylist } from './api/spotify.ts';
 
-export interface Env {}
+export interface Env {
+  SPOTIFY_CLIENT_ID?: string;
+  SPOTIFY_CLIENT_SECRET?: string;
+}
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -21,7 +27,7 @@ const CORS_HEADERS = {
 };
 
 export default {
-  async fetch(request: Request, _env: Env): Promise<Response> {
+  async fetch(request: Request, env: Env): Promise<Response> {
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: CORS_HEADERS });
     }
@@ -48,10 +54,21 @@ export default {
         return json({ platform: 'beatport', query, results });
       }
 
-      if (path === '/scrape/traxsource') {
-        if (!query) return json({ error: 'Missing ?q= parameter' }, 400);
-        const results = await scrapeTraxsource(query);
-        return json({ platform: 'traxsource', query, results });
+      if (path === '/scrape/soundcloud') {
+        const scUrl = url.searchParams.get('url');
+        if (!scUrl) return json({ error: 'Missing ?url= parameter' }, 400);
+        const results = await scrapeSoundCloudSet(scUrl);
+        return json({ platform: 'soundcloud', url: scUrl, results });
+      }
+
+      if (path === '/api/spotify/playlist') {
+        const playlistId = url.searchParams.get('id');
+        if (!playlistId) return json({ error: 'Missing ?id= parameter' }, 400);
+        if (!env.SPOTIFY_CLIENT_ID || !env.SPOTIFY_CLIENT_SECRET) {
+          return json({ error: 'Spotify credentials not configured on worker' }, 500);
+        }
+        const results = await fetchSpotifyPlaylist(playlistId, env.SPOTIFY_CLIENT_ID, env.SPOTIFY_CLIENT_SECRET);
+        return json({ platform: 'spotify', playlistId, results });
       }
 
       return json({ error: 'Not found' }, 404);

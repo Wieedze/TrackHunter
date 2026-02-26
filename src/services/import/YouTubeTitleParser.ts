@@ -18,6 +18,10 @@ export class YouTubeTitleParser {
     /\d+\s*(hr|hour|min).*mix/i,
   ];
 
+  static isDJSet(title: string): boolean {
+    return this.SET_PATTERNS.some((p) => p.test(title));
+  }
+
   static parse(title: string): { artist: string; title: string } | null {
     // Reject sets
     if (this.SET_PATTERNS.some((p) => p.test(title))) return null;

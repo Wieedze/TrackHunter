@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { ExternalLink, Play, ChevronDown, Search } from 'lucide-react';
 import { Platform } from '../../types/platform.ts';
 import type { PlatformResult } from '../../types/platform.ts';
-import { ConfidenceBadge } from './ConfidenceBadge.tsx';
 
 interface PlatformGroupProps {
   platform: string;
@@ -113,9 +112,6 @@ export function PlatformGroup({ platform, results, onPlayPreview }: PlatformGrou
             <span className="font-mono text-xs text-text-tertiary">{best.format}</span>
           )}
 
-          {/* Confidence */}
-          <ConfidenceBadge confidence={best.confidence} />
-
           {/* Preview */}
           {best.previewUrl && onPlayPreview && (
             <button
@@ -173,7 +169,6 @@ export function PlatformGroup({ platform, results, onPlayPreview }: PlatformGrou
                     {result.currency ?? ''}{result.price.toFixed(2)}
                   </span>
                 )}
-                <ConfidenceBadge confidence={result.confidence} />
                 {result.previewUrl && onPlayPreview && (
                   <button
                     onClick={() => onPlayPreview(result.previewUrl!)}

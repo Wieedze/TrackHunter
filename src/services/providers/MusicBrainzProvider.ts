@@ -27,7 +27,7 @@ interface MBSearchResponse {
  * Rate limit: 1 req/sec.
  */
 export class MusicBrainzProvider extends BaseProvider {
-  platform = Platform.MUSICBRAINZ as const;
+  platform = Platform.MUSICBRAINZ;
 
   private baseUrl = 'https://musicbrainz.org/ws/2';
   private lastRequestTime = 0;
@@ -50,8 +50,6 @@ export class MusicBrainzProvider extends BaseProvider {
     return data.recordings.map((rec) => {
       const artist = rec['artist-credit']?.[0]?.name ?? '';
       const release = rec.releases?.[0];
-      const label = release?.['label-info']?.[0]?.label?.name;
-
       return {
         platform: Platform.MUSICBRAINZ,
         externalId: rec.id,

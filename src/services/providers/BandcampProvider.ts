@@ -25,12 +25,36 @@ interface BandcampResponse {
  * Searches both tracks and albums to maximize coverage.
  */
 export class BandcampProvider extends BaseProvider {
-  platform = Platform.BANDCAMP as const;
+  platform = Platform.BANDCAMP;
 
   async search(query: TrackQuery): Promise<PlatformResult[]> {
-    const searchTerm = `${query.artist} ${query.title}`;
+    const primaryTerm = `${query.artist} ${query.title}`;
+    let all = await this.searchBandcamp(primaryTerm, query);
 
-    // Search tracks and albums in parallel
+    // Fallback: if no good results, retry with just the title
+    // Covers cases where the track is indexed under a label name instead of the artist
+    if (all.length === 0 || all.every((r) => r.confidence < 0.3)) {
+      const titleOnly = await this.searchBandcamp(query.title, query);
+      all.push(...titleOnly);
+    }
+
+    // Fallback: try album name if available and still no good results
+    if (query.album && (all.length === 0 || all.every((r) => r.confidence < 0.3))) {
+      const albumTerm = `${query.artist} ${query.album}`;
+      const albumResults = await this.searchBandcamp(albumTerm, query);
+      all.push(...albumResults);
+    }
+
+    // Deduplicate by URL
+    const seen = new Set<string>();
+    return all.filter((r) => {
+      if (seen.has(r.url)) return false;
+      seen.add(r.url);
+      return true;
+    });
+  }
+
+  private async searchBandcamp(searchTerm: string, query: TrackQuery): Promise<PlatformResult[]> {
     const [trackResults, albumResults] = await Promise.allSettled([
       proxyFetch('bandcamp', searchTerm, { type: 't' }) as Promise<BandcampResponse>,
       proxyFetch('bandcamp', searchTerm, { type: 'a' }) as Promise<BandcampResponse>,
@@ -46,13 +70,7 @@ export class BandcampProvider extends BaseProvider {
       all.push(...this.mapResults(albumResults.value.results, query));
     }
 
-    // Deduplicate by URL
-    const seen = new Set<string>();
-    return all.filter((r) => {
-      if (seen.has(r.url)) return false;
-      seen.add(r.url);
-      return true;
-    });
+    return all;
   }
 
   private mapResults(items: BandcampScrapedResult[], query: TrackQuery): PlatformResult[] {

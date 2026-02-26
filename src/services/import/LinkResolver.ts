@@ -6,6 +6,7 @@ export type InputType =
   | { type: 'text' }
   | { type: 'spotify_playlist'; id: string }
   | { type: 'youtube_playlist'; id: string }
+  | { type: 'youtube_mix' }
   | { type: 'soundcloud_set'; url: string }
   | { type: 'deezer_playlist'; id: string }
   | { type: 'unknown_link'; url: string };
@@ -22,12 +23,17 @@ export class LinkResolver {
       return { type: 'spotify_playlist', id: spotifyMatch[1] };
     }
 
-    // YouTube playlist
+    // YouTube playlist / mix
     const ytMatch = trimmed.match(
       /(?:youtube\.com|youtu\.be)\/.*[?&]list=([a-zA-Z0-9_-]+)/,
     );
     if (ytMatch) {
-      return { type: 'youtube_playlist', id: ytMatch[1] };
+      const listId = ytMatch[1];
+      // YouTube Mix/Radio IDs start with "RD" — these are auto-generated and not accessible via API
+      if (listId.startsWith('RD')) {
+        return { type: 'youtube_mix' };
+      }
+      return { type: 'youtube_playlist', id: listId };
     }
 
     // SoundCloud set
