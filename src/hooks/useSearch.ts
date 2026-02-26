@@ -3,14 +3,28 @@ import { nanoid } from 'nanoid';
 import { usePlaylistStore } from '../stores/playlistStore.ts';
 import { TextParser } from '../services/import/TextParser.ts';
 import { LinkResolver } from '../services/import/LinkResolver.ts';
+import { SearchOrchestrator } from '../services/search/SearchOrchestrator.ts';
+import { ResultAggregator } from '../services/search/ResultAggregator.ts';
+import { DeezerProvider } from '../services/providers/DeezerProvider.ts';
+import { MusicBrainzProvider } from '../services/providers/MusicBrainzProvider.ts';
+import { BandcampProvider } from '../services/providers/BandcampProvider.ts';
+import { BeatportProvider } from '../services/providers/BeatportProvider.ts';
 import type { Playlist, TrackResult } from '../types/track.ts';
+
+// Singleton orchestrator with all available providers
+// Bandcamp + Beatport require the Cloudflare Worker running (npm run dev in worker/)
+const orchestrator = new SearchOrchestrator([
+  new DeezerProvider(),
+  new MusicBrainzProvider(),
+  new BandcampProvider(),
+  new BeatportProvider(),
+]);
 
 /**
  * Hook that orchestrates the full import + search flow.
- * Handles text parsing, link detection, and triggers search.
  */
 export function useSearch() {
-  const { setCurrentPlaylist, setSearchStatus, setError } = usePlaylistStore();
+  const { setCurrentPlaylist, updateTrackResult, setSearchStatus, setError } = usePlaylistStore();
 
   const importAndSearch = useCallback(
     async (rawInput: string) => {
@@ -25,7 +39,7 @@ export function useSearch() {
         if (inputType.type === 'text') {
           const parsed = TextParser.parse(rawInput);
           if (parsed.length === 0) {
-            setError('Could not parse any tracks. Try format: Artist - Title');
+            setError('Could not parse any tracks. Use format: Artist - Title');
             setSearchStatus('idle');
             return;
           }
@@ -35,9 +49,16 @@ export function useSearch() {
             searchedAt: new Date().toISOString(),
             status: 'pending' as const,
           }));
+        } else if (inputType.type === 'spotify_playlist') {
+          setError('Spotify playlist import coming soon. Paste tracks as text for now (Artist - Title).');
+          setSearchStatus('idle');
+          return;
+        } else if (inputType.type === 'youtube_playlist') {
+          setError('YouTube playlist import coming soon. Paste tracks as text for now (Artist - Title).');
+          setSearchStatus('idle');
+          return;
         } else {
-          // TODO: Implement playlist link resolution (Spotify, YouTube, etc.)
-          setError(`Link import not yet implemented for: ${inputType.type}`);
+          setError(`Import not yet supported for: ${inputType.type}. Paste tracks as text.`);
           setSearchStatus('idle');
           return;
         }
@@ -54,8 +75,33 @@ export function useSearch() {
         setCurrentPlaylist(playlist);
         setSearchStatus('searching');
 
-        // TODO: Launch SearchOrchestrator for each track
-        // For now, mark all as done with no results
+        // Search each track sequentially (respect rate limits)
+        for (const track of tracks) {
+          updateTrackResult(track.input.id, { status: 'searching' });
+
+          try {
+            const results = await orchestrator.searchTrack({
+              title: track.input.title,
+              artist: track.input.artist,
+              label: track.input.label,
+              isrc: track.input.isrc,
+            });
+
+            const filtered = ResultAggregator.filterByConfidence(results, 0.3);
+            const sorted = ResultAggregator.sortByConfidence(filtered);
+            const bestMatch = ResultAggregator.getBestMatch(sorted);
+
+            updateTrackResult(track.input.id, {
+              results: sorted,
+              bestMatch,
+              status: 'done',
+              searchedAt: new Date().toISOString(),
+            });
+          } catch {
+            updateTrackResult(track.input.id, { status: 'error' });
+          }
+        }
+
         setSearchStatus('done');
       } catch (err) {
         const message = err instanceof Error ? err.message : 'Unknown error';
@@ -63,7 +109,7 @@ export function useSearch() {
         setSearchStatus('error');
       }
     },
-    [setCurrentPlaylist, setSearchStatus, setError],
+    [setCurrentPlaylist, updateTrackResult, setSearchStatus, setError],
   );
 
   return { importAndSearch };

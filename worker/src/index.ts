@@ -1,16 +1,18 @@
 /**
- * TrackHunter — Cloudflare Worker (CORS Proxy)
+ * TrackHunter — Cloudflare Worker (CORS Proxy + Scraper)
  *
  * Routes:
- *   GET /health          → Health check
- *   GET /scrape/bandcamp → Scrape Bandcamp search results
- *   GET /scrape/beatport → Scrape Beatport search results
- *   GET /scrape/traxsource → Scrape Traxsource search results
+ *   GET /health             → Health check
+ *   GET /scrape/bandcamp    → Scrape Bandcamp search results
+ *   GET /scrape/beatport    → Scrape Beatport search results
+ *   GET /scrape/traxsource  → Scrape Traxsource search results
  */
 
-export interface Env {
-  // Add KV namespace bindings, secrets, etc. here as needed
-}
+import { scrapeBandcamp } from './scrapers/bandcamp.ts';
+import { scrapeBeatport } from './scrapers/beatport.ts';
+import { scrapeTraxsource } from './scrapers/traxsource.ts';
+
+export interface Env {}
 
 const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
@@ -20,13 +22,13 @@ const CORS_HEADERS = {
 
 export default {
   async fetch(request: Request, _env: Env): Promise<Response> {
-    // Handle CORS preflight
     if (request.method === 'OPTIONS') {
       return new Response(null, { headers: CORS_HEADERS });
     }
 
     const url = new URL(request.url);
     const path = url.pathname;
+    const query = url.searchParams.get('q');
 
     try {
       if (path === '/health') {
@@ -34,24 +36,22 @@ export default {
       }
 
       if (path === '/scrape/bandcamp') {
-        const query = url.searchParams.get('q');
         if (!query) return json({ error: 'Missing ?q= parameter' }, 400);
-        // TODO: Implement Bandcamp scraper
-        return json({ platform: 'bandcamp', query, results: [] });
+        const itemType = (url.searchParams.get('type') as 't' | 'a') ?? 't';
+        const results = await scrapeBandcamp(query, itemType);
+        return json({ platform: 'bandcamp', query, results });
       }
 
       if (path === '/scrape/beatport') {
-        const query = url.searchParams.get('q');
         if (!query) return json({ error: 'Missing ?q= parameter' }, 400);
-        // TODO: Implement Beatport scraper
-        return json({ platform: 'beatport', query, results: [] });
+        const results = await scrapeBeatport(query);
+        return json({ platform: 'beatport', query, results });
       }
 
       if (path === '/scrape/traxsource') {
-        const query = url.searchParams.get('q');
         if (!query) return json({ error: 'Missing ?q= parameter' }, 400);
-        // TODO: Implement Traxsource scraper
-        return json({ platform: 'traxsource', query, results: [] });
+        const results = await scrapeTraxsource(query);
+        return json({ platform: 'traxsource', query, results });
       }
 
       return json({ error: 'Not found' }, 404);
