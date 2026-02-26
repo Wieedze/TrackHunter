@@ -1,0 +1,90 @@
+@import "tailwindcss";
+
+/*
+ * TrackHunter — Custom Design System
+ * Industrial-minimal, dark-mode native, pro-tool aesthetic
+ */
+
+/* ── Theme tokens ─────────────────────────────────────────── */
+@theme {
+  /* Backgrounds */
+  --color-bg-primary: #0A0A0A;
+  --color-bg-secondary: #111111;
+  --color-bg-tertiary: #1A1A1A;
+  --color-bg-elevated: #222222;
+
+  /* Text */
+  --color-text-primary: #E8E8E8;
+  --color-text-secondary: #8A8A8A;
+  --color-text-tertiary: #555555;
+  --color-text-inverse: #0A0A0A;
+
+  /* Accent — Green Beatport-like */
+  --color-accent: #1DB954;
+  --color-accent-hover: #1ED760;
+  --color-accent-muted: #1DB95420;
+  --color-accent-dark: #158A3E;
+
+  /* Platform colors */
+  --color-platform-spotify: #1DB954;
+  --color-platform-bandcamp: #1DA0C3;
+  --color-platform-beatport: #94D500;
+  --color-platform-discogs: #333333;
+  --color-platform-youtube: #FF0000;
+  --color-platform-deezer: #A238FF;
+  --color-platform-traxsource: #00BFFF;
+  --color-platform-soundcloud: #FF5500;
+  --color-platform-musicbrainz: #BA478F;
+
+  /* Status */
+  --color-status-success: #1DB954;
+  --color-status-warning: #F5A623;
+  --color-status-error: #E53E3E;
+  --color-status-info: #4A9EFF;
+
+  /* Borders */
+  --color-border: #1F1F1F;
+  --color-border-hover: #333333;
+  --color-border-active: #1DB954;
+
+  /* Fonts */
+  --font-display: "DM Sans", sans-serif;
+  --font-body: "IBM Plex Sans", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+/* ── Base styles ──────────────────────────────────────────── */
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
+  font-family: var(--font-body);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-hover);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-tertiary);
+}
+
+/* Selection */
+::selection {
+  background-color: var(--color-accent-muted);
+  color: var(--color-text-primary);
+}

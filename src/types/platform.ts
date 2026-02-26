@@ -1,0 +1,48 @@
+export const Platform = {
+  SPOTIFY: 'spotify',
+  BANDCAMP: 'bandcamp',
+  BEATPORT: 'beatport',
+  TRAXSOURCE: 'traxsource',
+  DISCOGS: 'discogs',
+  MUSICBRAINZ: 'musicbrainz',
+  YOUTUBE: 'youtube',
+  DEEZER: 'deezer',
+  JUNO: 'juno',
+  TIDAL: 'tidal',
+  SOUNDCLOUD: 'soundcloud',
+} as const;
+
+export type Platform = (typeof Platform)[keyof typeof Platform];
+
+export const OAuthPlatform = {
+  SPOTIFY: 'spotify',
+  YOUTUBE: 'youtube',
+  DEEZER: 'deezer',
+  SOUNDCLOUD: 'soundcloud',
+} as const;
+
+export type OAuthPlatform = (typeof OAuthPlatform)[keyof typeof OAuthPlatform];
+
+export interface PlatformResult {
+  platform: Platform;
+  externalId?: string;
+  url: string;
+  title: string;
+  artist: string;
+  price?: number;
+  currency?: string;
+  format?: string;
+  quality?: string;
+  available: boolean;
+  previewUrl?: string;
+  artworkUrl?: string;
+  confidence: number;
+  extras?: {
+    bpm?: number;
+    key?: string;
+    releaseDate?: string;
+    condition?: string;
+    sellers?: number;
+    wantCount?: number;
+  };
+}
