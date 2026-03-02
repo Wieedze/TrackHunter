@@ -9,7 +9,6 @@ import { Platform } from '../types/platform.ts';
 const PLATFORM_LEGEND: { key: string; label: string; dotClass: string }[] = [
   { key: Platform.BANDCAMP, label: 'Bandcamp', dotClass: 'bg-platform-bandcamp' },
   { key: Platform.MUSICBRAINZ, label: 'MusicBrainz', dotClass: 'bg-platform-musicbrainz' },
-  { key: Platform.TRAXSOURCE, label: 'Traxsource', dotClass: 'bg-platform-traxsource' },
   { key: Platform.DISCOGS, label: 'Discogs', dotClass: 'bg-[#999]' },
   { key: Platform.BEATPORT, label: 'Beatport', dotClass: 'bg-platform-beatport' },
 ];

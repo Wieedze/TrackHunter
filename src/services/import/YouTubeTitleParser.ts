@@ -3,12 +3,25 @@
  * YouTube titles are often noisy with tags like "(Official Video)", "HQ", etc.
  */
 export class YouTubeTitleParser {
+  // Genre tag prefixes added by playlist curators (e.g. "PSY-TRANCE ◉ Artist - Title")
+  private static GENRE_PREFIXES = /^(?:PSY[- ]?TRANCE|PSY[- ]?TECHNO|TECHNO|TRANCE|HOUSE|DEEP\s*HOUSE|TECH\s*HOUSE|DRUM\s*(?:&|AND)\s*BASS|D&?N&?B|DUBSTEP|AMBIENT|MINIMAL|PROGRESSIVE|GOA|HARD\s*STYLE|HARD\s*CORE|BREAKS|JUNGLE|GARAGE|ELECTRO|EDM|BASS\s*MUSIC|DOWNTEMPO|CHILL(?:OUT)?)\s*[◉●◆►▸☆★\-–—:|]\s*/i;
+
   // Patterns to remove
   private static NOISE = [
-    /\b(official\s*(music\s*)?video|lyric\s*video|audio|visualizer)\b/i,
-    /\b(hq|hd|4k|1080p|720p)\b/i,
-    /\b(full\s*album|ep|lp)\b/i,
-    /\[.*?(official|premiere|exclusive|free\s*dl).*?\]/i,
+    /\(?\s*official\s*(music\s*)?video\s*\)?/gi,
+    /\(?\s*official\s*(music\s*)?clip\s*\)?/gi,
+    /\(?\s*official\s*audio\s*\)?/gi,
+    /\(?\s*official\s*visuali[sz]er\s*\)?/gi,
+    /\(?\s*lyric\s*video\s*\)?/gi,
+    /\(?\s*clip\s*officiel\s*\)?/gi,
+    /\(?\s*audio\s*officiel\s*\)?/gi,
+    /\(?\s*music\s*video\s*\)?/gi,
+    /\(?\s*video\s*clip\s*\)?/gi,
+    /\b(hq|hd|4k|1080p|720p)\b/gi,
+    /\b(full\s*album|ep|lp)\b/gi,
+    /\[.*?\]/g, // Remove all bracketed tags [BHM Exclusive], [Official], etc.
+    /\(?\s*premiere\s*\)?/gi,
+    /\(?\s*free\s*(download|dl)\s*\)?/gi,
     /\|.*$/, // Everything after a pipe
   ];
 
@@ -26,8 +39,10 @@ export class YouTubeTitleParser {
     // Reject sets
     if (this.SET_PATTERNS.some((p) => p.test(title))) return null;
 
+    // Strip genre tag prefixes (e.g. "PSY-TRANCE ◉ Artist - Title")
+    let clean = title.replace(this.GENRE_PREFIXES, '');
+
     // Clean noise
-    let clean = title;
     for (const pattern of this.NOISE) {
       clean = clean.replace(pattern, '');
     }

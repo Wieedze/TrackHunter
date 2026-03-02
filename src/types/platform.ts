@@ -2,13 +2,10 @@ export const Platform = {
   SPOTIFY: 'spotify',
   BANDCAMP: 'bandcamp',
   BEATPORT: 'beatport',
-  TRAXSOURCE: 'traxsource',
   DISCOGS: 'discogs',
   MUSICBRAINZ: 'musicbrainz',
   YOUTUBE: 'youtube',
   DEEZER: 'deezer',
-  JUNO: 'juno',
-  TIDAL: 'tidal',
   SOUNDCLOUD: 'soundcloud',
 } as const;
 

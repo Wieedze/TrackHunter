@@ -5,7 +5,6 @@
  *   GET /health                  → Health check
  *   GET /scrape/bandcamp         → Scrape Bandcamp search results
  *   GET /scrape/beatport         → Scrape Beatport search results
- *   (Traxsource: manual search link only — blocks Worker requests)
  *   GET /scrape/soundcloud       → Scrape SoundCloud set tracks
  *   GET /api/spotify/playlist    → Fetch Spotify playlist tracks (Client Credentials)
  */

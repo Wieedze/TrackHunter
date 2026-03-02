@@ -13,14 +13,11 @@ const PLATFORM_LABELS: Record<string, string> = {
   [Platform.SPOTIFY]: 'Spotify',
   [Platform.BANDCAMP]: 'Bandcamp',
   [Platform.BEATPORT]: 'Beatport',
-  [Platform.TRAXSOURCE]: 'Traxsource',
   [Platform.DISCOGS]: 'Discogs',
   [Platform.MUSICBRAINZ]: 'MusicBrainz',
   [Platform.YOUTUBE]: 'YouTube',
   [Platform.DEEZER]: 'Deezer',
   [Platform.SOUNDCLOUD]: 'SoundCloud',
-  [Platform.TIDAL]: 'Tidal',
-  [Platform.JUNO]: 'Juno',
 };
 
 const PLATFORM_COLORS: Record<string, string> = {
@@ -31,7 +28,6 @@ const PLATFORM_COLORS: Record<string, string> = {
   [Platform.MUSICBRAINZ]: 'border-platform-musicbrainz/40 bg-platform-musicbrainz/5',
   [Platform.YOUTUBE]: 'border-platform-youtube/40 bg-platform-youtube/5',
   [Platform.DEEZER]: 'border-platform-deezer/40 bg-platform-deezer/5',
-  [Platform.TRAXSOURCE]: 'border-platform-traxsource/40 bg-platform-traxsource/5',
   [Platform.SOUNDCLOUD]: 'border-platform-soundcloud/40 bg-platform-soundcloud/5',
 };
 
@@ -43,7 +39,6 @@ const BADGE_COLORS: Record<string, string> = {
   [Platform.MUSICBRAINZ]: 'bg-platform-musicbrainz/15 text-platform-musicbrainz',
   [Platform.YOUTUBE]: 'bg-platform-youtube/15 text-platform-youtube',
   [Platform.DEEZER]: 'bg-platform-deezer/15 text-platform-deezer',
-  [Platform.TRAXSOURCE]: 'bg-platform-traxsource/15 text-platform-traxsource',
   [Platform.SOUNDCLOUD]: 'bg-platform-soundcloud/15 text-platform-soundcloud',
 };
 

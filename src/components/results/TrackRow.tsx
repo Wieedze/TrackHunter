@@ -52,7 +52,6 @@ const PLATFORM_DOT_COLORS: Record<string, string> = {
   [Platform.SPOTIFY]: 'bg-platform-spotify',
   [Platform.BANDCAMP]: 'bg-platform-bandcamp',
   [Platform.BEATPORT]: 'bg-platform-beatport',
-  [Platform.TRAXSOURCE]: 'bg-platform-traxsource',
   [Platform.DISCOGS]: 'bg-[#999]',
   [Platform.MUSICBRAINZ]: 'bg-platform-musicbrainz',
   [Platform.YOUTUBE]: 'bg-platform-youtube',

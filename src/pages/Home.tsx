@@ -74,7 +74,7 @@ export function Home() {
           <span className="text-accent">Track</span>Hunter
         </h1>
         <p className="mt-3 max-w-md text-text-secondary">
-          Paste a playlist, find every track across all platforms. Compare prices, formats, and availability.
+          Paste a playlist, find every track across all platforms.
         </p>
       </div>
 

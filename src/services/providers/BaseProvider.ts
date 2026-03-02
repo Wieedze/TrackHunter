@@ -23,39 +23,46 @@ export abstract class BaseProvider {
     const normalize = (s: string): string =>
       s
         .toLowerCase()
-        .replace(/[\(\)\[\]\-–—]/g, ' ')
+        .replace(/[\(\)\[\]\-–—,&]/g, ' ')
+        .replace(/\bvs\.?\b/g, ' ')
+        .replace(/\band\b/g, ' ')
         .replace(/feat\.?|ft\.?|featuring/g, 'feat')
         .replace(/remix|rmx|rework|edit|mix/g, 'remix')
         .replace(/original\s*(mix)?/g, '')
         .replace(/\s+/g, ' ')
         .trim();
 
-    let score = 0;
+    const qTitle = normalize(query.title);
+    const qArtist = normalize(query.artist);
+    const cTitle = candidate.title ? normalize(candidate.title) : '';
+    const cArtist = candidate.artist ? normalize(candidate.artist) : '';
 
-    // Title similarity (40%)
-    if (candidate.title) {
-      const sim = tokenSimilarity(normalize(query.title), normalize(candidate.title));
-      score += sim * 0.4;
-    }
+    // Combined candidate text — Bandcamp often puts the real artist name
+    // in the title (e.g. "ATRIOHM VS ENCEPHALOPATICYS - Ukalen") while
+    // the artist field contains the label/publisher name.
+    const cCombined = `${cTitle} ${cArtist}`;
 
-    // Artist similarity (40%)
-    if (candidate.artist) {
-      const sim = tokenSimilarity(normalize(query.artist), normalize(candidate.artist));
-      score += sim * 0.4;
-    }
+    // Title similarity (50%)
+    const titleSim = cTitle ? tokenSimilarity(qTitle, cTitle) : 0;
 
-    // Label bonus (20%)
-    if (query.label && candidate.title) {
-      // Simple heuristic — label matching would need the candidate label field
-      score += 0.1;
-    }
+    // Artist similarity (50%) — also check if artist appears in combined text
+    const artistDirect = cArtist ? tokenSimilarity(qArtist, cArtist) : 0;
+    const artistInCombined = tokenSimilarity(qArtist, cCombined);
+    const artistSim = Math.max(artistDirect, artistInCombined);
+
+    // Both title AND artist must have some match to score well.
+    // Title-only match (wrong artist) or artist-only match (wrong track)
+    // should score low.
+    const score = titleSim * 0.5 + artistSim * 0.5;
 
     return Math.min(score, 1.0);
   }
 }
 
 /**
- * Token-based similarity: measures overlap between word sets.
+ * Token-based similarity: measures what fraction of query tokens appear
+ * in the candidate. Uses recall (overlap / query size) rather than Jaccard
+ * so that extra tokens in the candidate don't dilute the score.
  */
 function tokenSimilarity(a: string, b: string): number {
   const tokensA = new Set(a.split(' ').filter(Boolean));
@@ -69,6 +76,5 @@ function tokenSimilarity(a: string, b: string): number {
     if (tokensB.has(token)) overlap++;
   }
 
-  const union = new Set([...tokensA, ...tokensB]).size;
-  return overlap / union; // Jaccard similarity
+  return overlap / tokensA.size;
 }

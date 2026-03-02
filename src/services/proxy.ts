@@ -1,6 +1,6 @@
 /**
  * Client for the Cloudflare Worker proxy.
- * Used to scrape Bandcamp, Beatport, and Traxsource.
+ * Used to scrape Bandcamp and Beatport.
  *
  * Fails gracefully if the worker is not running — providers using this
  * will simply return no results (handled by Promise.allSettled in orchestrator).
@@ -9,7 +9,7 @@
 const WORKER_URL = import.meta.env.VITE_WORKER_URL ?? 'http://localhost:8787';
 
 export async function proxyFetch(
-  platform: 'bandcamp' | 'beatport' | 'traxsource',
+  platform: 'bandcamp' | 'beatport',
   query: string,
   params?: Record<string, string>,
 ): Promise<unknown> {
