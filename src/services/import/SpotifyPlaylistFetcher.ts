@@ -22,16 +22,46 @@ interface SpotifyWorkerResponse {
  */
 export class SpotifyPlaylistFetcher {
   static async fetch(playlistId: string): Promise<TrackInput[]> {
-    const res = await fetch(`${WORKER_URL}/api/spotify/playlist?id=${encodeURIComponent(playlistId)}`);
+    const url = `${WORKER_URL}/api/spotify/playlist?id=${encodeURIComponent(playlistId)}`;
+    console.log('[SpotifyFetcher] Requesting:', url);
+    console.log('[SpotifyFetcher] WORKER_URL:', WORKER_URL);
 
-    if (!res.ok) {
-      const body = await res.json().catch(() => null) as { error?: string } | null;
-      throw new Error(body?.error ?? `Spotify fetch failed: ${res.status}`);
+    let res: Response;
+    try {
+      res = await fetch(url);
+    } catch (err) {
+      console.error('[SpotifyFetcher] Network error (fetch threw):', err);
+      throw new Error(`Cannot reach worker at ${WORKER_URL}: ${err instanceof Error ? err.message : err}`);
     }
 
-    const data = (await res.json()) as SpotifyWorkerResponse;
+    console.log('[SpotifyFetcher] Response status:', res.status, res.statusText);
+    console.log('[SpotifyFetcher] Response headers:', Object.fromEntries(res.headers.entries()));
 
-    if (data.error) throw new Error(data.error);
+    if (!res.ok) {
+      const rawBody = await res.text().catch(() => '');
+      console.error('[SpotifyFetcher] Error response body:', rawBody);
+      let parsed: { error?: string } | null = null;
+      try { parsed = JSON.parse(rawBody); } catch { /* not JSON */ }
+      throw new Error(parsed?.error ?? `Spotify fetch failed: ${res.status} — ${rawBody.slice(0, 200)}`);
+    }
+
+    const rawText = await res.text();
+    console.log('[SpotifyFetcher] Raw response (first 500 chars):', rawText.slice(0, 500));
+
+    let data: SpotifyWorkerResponse;
+    try {
+      data = JSON.parse(rawText) as SpotifyWorkerResponse;
+    } catch {
+      console.error('[SpotifyFetcher] Failed to parse JSON:', rawText.slice(0, 300));
+      throw new Error('Worker returned invalid JSON');
+    }
+
+    if (data.error) {
+      console.error('[SpotifyFetcher] Worker returned error:', data.error);
+      throw new Error(data.error);
+    }
+
+    console.log('[SpotifyFetcher] Got', data.results?.length ?? 0, 'tracks');
 
     return data.results.map((t) => ({
       id: nanoid(),

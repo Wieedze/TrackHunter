@@ -20,6 +20,7 @@ dist-ssr
 # Cloudflare Worker
 worker/node_modules
 worker/.wrangler
+worker/.dev.vars
 
 # Editor directories and files
 .vscode/*

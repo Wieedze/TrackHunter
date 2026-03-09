@@ -62,11 +62,17 @@ export default {
 
       if (path === '/api/spotify/playlist') {
         const playlistId = url.searchParams.get('id');
+        console.log('[Worker:Spotify] Received request for playlist:', playlistId);
         if (!playlistId) return json({ error: 'Missing ?id= parameter' }, 400);
+        console.log('[Worker:Spotify] SPOTIFY_CLIENT_ID set:', !!env.SPOTIFY_CLIENT_ID);
+        console.log('[Worker:Spotify] SPOTIFY_CLIENT_SECRET set:', !!env.SPOTIFY_CLIENT_SECRET);
         if (!env.SPOTIFY_CLIENT_ID || !env.SPOTIFY_CLIENT_SECRET) {
+          console.error('[Worker:Spotify] Missing credentials!');
           return json({ error: 'Spotify credentials not configured on worker' }, 500);
         }
+        console.log('[Worker:Spotify] Fetching playlist...');
         const results = await fetchSpotifyPlaylist(playlistId, env.SPOTIFY_CLIENT_ID, env.SPOTIFY_CLIENT_SECRET);
+        console.log('[Worker:Spotify] Got', results.length, 'tracks');
         return json({ platform: 'spotify', playlistId, results });
       }
 
