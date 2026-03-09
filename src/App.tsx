@@ -19,7 +19,7 @@ const queryClient = new QueryClient({
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <BrowserRouter basename="/TrackHunter">
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<Home />} />
