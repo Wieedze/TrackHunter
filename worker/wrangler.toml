@@ -2,5 +2,8 @@ name = "trackhunter-proxy"
 main = "src/index.ts"
 compatibility_date = "2024-12-01"
 
+[dev]
+port = 8787
+
 [observability]
 enabled = true

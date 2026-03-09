@@ -2,13 +2,10 @@ export const Platform = {
   SPOTIFY: 'spotify',
   BANDCAMP: 'bandcamp',
   BEATPORT: 'beatport',
-  TRAXSOURCE: 'traxsource',
   DISCOGS: 'discogs',
   MUSICBRAINZ: 'musicbrainz',
   YOUTUBE: 'youtube',
   DEEZER: 'deezer',
-  JUNO: 'juno',
-  TIDAL: 'tidal',
   SOUNDCLOUD: 'soundcloud',
 } as const;
 
@@ -37,6 +34,7 @@ export interface PlatformResult {
   previewUrl?: string;
   artworkUrl?: string;
   confidence: number;
+  manualSearch?: boolean;
   extras?: {
     bpm?: number;
     key?: string;

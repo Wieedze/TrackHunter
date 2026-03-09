@@ -25,7 +25,7 @@ export interface TrackResult {
 export interface Playlist {
   id: string;
   name: string;
-  source: 'text' | 'csv' | 'spotify_link' | 'youtube_link' | 'spotify_oauth' | 'youtube_oauth';
+  source: 'text' | 'csv' | 'spotify_link' | 'youtube_link' | 'soundcloud_link' | 'spotify_oauth' | 'youtube_oauth';
   sourceUrl?: string;
   tracks: TrackResult[];
   createdAt: string;
