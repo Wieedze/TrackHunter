@@ -5,7 +5,7 @@
     <title>TrackHunter</title>
     <script>
       // Redirect all 404s to index.html for SPA routing
-      var pathSegmentsToKeep = 1; // keep /TrackHunter/
+      var pathSegmentsToKeep = 0; // root domain
       var l = window.location;
       l.replace(
         l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +

@@ -1,73 +1,108 @@
-# React + TypeScript + Vite
+# TrackHunter
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Search for tracks across multiple music platforms at once. Paste a playlist link or a list of tracks, and TrackHunter finds them on Bandcamp, Beatport, Discogs, MusicBrainz, and more.
 
-Currently, two official plugins are available:
+**Live:** [track-hunter.com](https://track-hunter.com)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## React Compiler
+- **Multi-platform search** — Bandcamp, Beatport, Discogs, MusicBrainz, Deezer, with confidence scoring
+- **Playlist import** — Spotify, YouTube, SoundCloud playlists
+- **Text & file import** — Paste `Artist - Title` lines or upload CSV/TXT
+- **Parallel search** — 3 tracks searched simultaneously
+- **Wishlist** — Save tracks for later
+- **Preview** — Listen to 30s previews when available (Deezer)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Supported Platforms
 
-## Expanding the ESLint configuration
+| Platform | Search | Import |
+|----------|--------|--------|
+| Spotify | — | Playlist |
+| YouTube | Link | Playlist |
+| SoundCloud | — | Set/Playlist |
+| MusicBrainz | API | — |
+| Deezer | API | — |
+| Discogs | API | — |
+| Bandcamp | Scraper | — |
+| Beatport | Manual link | — |
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Tech Stack
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- **Frontend:** React 19, TypeScript, Vite, Tailwind CSS 4, Zustand, React Query
+- **Backend:** Cloudflare Worker (CORS proxy + scraper + Spotify API)
+- **Hosting:** GitHub Pages (frontend) + Cloudflare Workers (backend)
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Getting Started
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### Prerequisites
+
+- Node.js 20+
+- pnpm
+
+### Setup
+
+```bash
+# Install dependencies
+pnpm install
+cd worker && pnpm install && cd ..
+
+# Configure environment
+cp .env.example .env
+# Fill in: VITE_YOUTUBE_API_KEY, VITE_DISCOGS_TOKEN
+
+# Configure worker secrets (for Spotify)
+cat > worker/.dev.vars << EOF
+SPOTIFY_CLIENT_ID=your_client_id
+SPOTIFY_CLIENT_SECRET=your_client_secret
+EOF
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Run locally
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+# Terminal 1 — Frontend
+pnpm dev
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Terminal 2 — Worker
+cd worker && pnpm dev
 ```
+
+Open [http://localhost:5173](http://localhost:5173).
+
+### Deploy
+
+**Frontend** deploys automatically to GitHub Pages on push to `main`.
+
+**Worker:**
+
+```bash
+cd worker
+npx wrangler deploy
+npx wrangler secret put SPOTIFY_CLIENT_ID
+npx wrangler secret put SPOTIFY_CLIENT_SECRET
+```
+
+## Project Structure
+
+```
+src/
+  components/     UI components
+  pages/          Home, Results, Wishlist, Settings
+  services/
+    providers/    Search providers (MusicBrainz, Bandcamp, Discogs, etc.)
+    search/       Search orchestrator & result aggregator
+    import/       Playlist fetchers & text parser
+  stores/         Zustand state
+  hooks/          React hooks
+  types/          TypeScript types
+
+worker/
+  src/
+    api/          Spotify API integration
+    scrapers/     Bandcamp, Beatport, SoundCloud scrapers
+    index.ts      Worker entry point
+```
+
+## License
+
+MIT
