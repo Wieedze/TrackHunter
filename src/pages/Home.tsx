@@ -180,7 +180,7 @@ export function Home() {
         </div>
       </div>
 
-      {/* SEO content section */}
+      {/* How it works */}
       <section className="mt-12 max-w-2xl text-center">
         <h2 className="font-display text-lg font-semibold text-text-primary">
           Find where to buy any track
@@ -197,23 +197,105 @@ export function Home() {
 
         <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
           <div className="rounded-sm border border-border bg-bg-secondary p-4">
-            <h3 className="text-sm font-medium text-text-primary">Import</h3>
+            <h3 className="text-sm font-medium text-text-primary">1. Import</h3>
             <p className="mt-1 text-xs text-text-tertiary">
-              Paste a playlist link or type track names manually
+              Paste a Spotify, YouTube or SoundCloud playlist link — or type track names manually
             </p>
           </div>
           <div className="rounded-sm border border-border bg-bg-secondary p-4">
-            <h3 className="text-sm font-medium text-text-primary">Search</h3>
+            <h3 className="text-sm font-medium text-text-primary">2. Search</h3>
             <p className="mt-1 text-xs text-text-tertiary">
-              Every track is searched across 4+ music platforms simultaneously
+              Every track is searched across Bandcamp, Beatport, MusicBrainz and Discogs simultaneously
             </p>
           </div>
           <div className="rounded-sm border border-border bg-bg-secondary p-4">
-            <h3 className="text-sm font-medium text-text-primary">Buy</h3>
+            <h3 className="text-sm font-medium text-text-primary">3. Buy</h3>
             <p className="mt-1 text-xs text-text-tertiary">
-              Click through to buy or download from your preferred store
+              Click through to buy, download or collect from your preferred music store
             </p>
           </div>
+        </div>
+      </section>
+
+      {/* Use cases */}
+      <section className="mt-12 max-w-2xl">
+        <h2 className="font-display text-lg font-semibold text-text-primary text-center">
+          Built for music lovers
+        </h2>
+        <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="rounded-sm border border-border bg-bg-secondary p-4">
+            <h3 className="text-sm font-medium text-text-primary">For DJs</h3>
+            <p className="mt-1 text-xs text-text-tertiary leading-relaxed">
+              Found a tracklist from a set you loved? Paste it in and find every track on Beatport and Bandcamp to build your collection.
+            </p>
+          </div>
+          <div className="rounded-sm border border-border bg-bg-secondary p-4">
+            <h3 className="text-sm font-medium text-text-primary">For vinyl collectors</h3>
+            <p className="mt-1 text-xs text-text-tertiary leading-relaxed">
+              Search Discogs and MusicBrainz to find physical releases, rare pressings and catalog information for any track.
+            </p>
+          </div>
+          <div className="rounded-sm border border-border bg-bg-secondary p-4">
+            <h3 className="text-sm font-medium text-text-primary">Spotify to Bandcamp</h3>
+            <p className="mt-1 text-xs text-text-tertiary leading-relaxed">
+              Support artists directly. Import your Spotify playlist and find the same tracks on Bandcamp where artists get a bigger share.
+            </p>
+          </div>
+          <div className="rounded-sm border border-border bg-bg-secondary p-4">
+            <h3 className="text-sm font-medium text-text-primary">Cross-platform search</h3>
+            <p className="mt-1 text-xs text-text-tertiary leading-relaxed">
+              Stop searching each platform manually. TrackHunter searches Bandcamp, Beatport, Discogs and MusicBrainz all at once.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ */}
+      <section className="mt-12 mb-12 max-w-2xl">
+        <h2 className="font-display text-lg font-semibold text-text-primary text-center">
+          Frequently asked questions
+        </h2>
+        <div className="mt-6 space-y-4">
+          <details className="group rounded-sm border border-border bg-bg-secondary">
+            <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-text-primary">
+              How do I find where to buy a specific song?
+            </summary>
+            <p className="px-4 pb-3 text-xs text-text-tertiary leading-relaxed">
+              Paste the track name (Artist - Title format) or a playlist link from Spotify, YouTube or SoundCloud into the search box above. TrackHunter will instantly search Bandcamp, Beatport, MusicBrainz and Discogs to show you where the track is available.
+            </p>
+          </details>
+          <details className="group rounded-sm border border-border bg-bg-secondary">
+            <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-text-primary">
+              Can I import my Spotify playlist to find tracks on Bandcamp?
+            </summary>
+            <p className="px-4 pb-3 text-xs text-text-tertiary leading-relaxed">
+              Yes! Just paste your Spotify playlist URL above. TrackHunter extracts all tracks and searches for each one on Bandcamp, Beatport, Discogs and MusicBrainz automatically. No login required.
+            </p>
+          </details>
+          <details className="group rounded-sm border border-border bg-bg-secondary">
+            <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-text-primary">
+              Is TrackHunter free?
+            </summary>
+            <p className="px-4 pb-3 text-xs text-text-tertiary leading-relaxed">
+              Yes, TrackHunter is completely free to use. Paste any playlist or track list and find purchase links across multiple music platforms instantly.
+            </p>
+          </details>
+          <details className="group rounded-sm border border-border bg-bg-secondary">
+            <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-text-primary">
+              What music platforms does TrackHunter search?
+            </summary>
+            <p className="px-4 pb-3 text-xs text-text-tertiary leading-relaxed">
+              TrackHunter searches Bandcamp, Beatport, MusicBrainz and Discogs for purchase and download links. You can import tracks from Spotify, YouTube and SoundCloud playlists.
+            </p>
+          </details>
+          <details className="group rounded-sm border border-border bg-bg-secondary">
+            <summary className="cursor-pointer px-4 py-3 text-sm font-medium text-text-primary">
+              How can DJs find tracks from a set or mix?
+            </summary>
+            <p className="px-4 pb-3 text-xs text-text-tertiary leading-relaxed">
+              If you have a tracklist from a DJ set, paste it in (one track per line, Artist - Title format). TrackHunter will find purchase links on Bandcamp, Beatport and other platforms so you can buy the tracks for your own sets.
+            </p>
+          </details>
         </div>
       </section>
     </div>
