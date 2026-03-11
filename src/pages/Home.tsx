@@ -179,6 +179,43 @@ export function Home() {
           </span>
         </div>
       </div>
+
+      {/* SEO content section */}
+      <section className="mt-12 max-w-2xl text-center">
+        <h2 className="font-display text-lg font-semibold text-text-primary">
+          Find where to buy any track
+        </h2>
+        <p className="mt-3 text-sm text-text-tertiary leading-relaxed">
+          TrackHunter helps DJs, collectors and music lovers find tracks across
+          <strong className="text-text-secondary"> Bandcamp</strong>,
+          <strong className="text-text-secondary"> Beatport</strong>,
+          <strong className="text-text-secondary"> MusicBrainz</strong> and
+          <strong className="text-text-secondary"> Discogs</strong>.
+          Import your playlists from Spotify, YouTube or SoundCloud and instantly
+          see where each track is available for purchase or download.
+        </p>
+
+        <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3">
+          <div className="rounded-sm border border-border bg-bg-secondary p-4">
+            <h3 className="text-sm font-medium text-text-primary">Import</h3>
+            <p className="mt-1 text-xs text-text-tertiary">
+              Paste a playlist link or type track names manually
+            </p>
+          </div>
+          <div className="rounded-sm border border-border bg-bg-secondary p-4">
+            <h3 className="text-sm font-medium text-text-primary">Search</h3>
+            <p className="mt-1 text-xs text-text-tertiary">
+              Every track is searched across 4+ music platforms simultaneously
+            </p>
+          </div>
+          <div className="rounded-sm border border-border bg-bg-secondary p-4">
+            <h3 className="text-sm font-medium text-text-primary">Buy</h3>
+            <p className="mt-1 text-xs text-text-tertiary">
+              Click through to buy or download from your preferred store
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

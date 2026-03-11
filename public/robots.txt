@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://track-hunter.com/sitemap.xml
