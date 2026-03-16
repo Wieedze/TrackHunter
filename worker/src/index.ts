@@ -12,7 +12,7 @@
 import { scrapeBandcamp } from './scrapers/bandcamp.ts';
 import { scrapeBeatport } from './scrapers/beatport.ts';
 import { scrapeSoundCloudSet } from './scrapers/soundcloud.ts';
-import { fetchSpotifyPlaylist } from './api/spotify.ts';
+import { fetchSpotifyPlaylist, fetchSpotifyTrack, fetchSpotifyAlbum } from './api/spotify.ts';
 
 export interface Env {
   SPOTIFY_CLIENT_ID?: string;
@@ -74,6 +74,26 @@ export default {
         const results = await fetchSpotifyPlaylist(playlistId, env.SPOTIFY_CLIENT_ID, env.SPOTIFY_CLIENT_SECRET);
         console.log('[Worker:Spotify] Got', results.length, 'tracks');
         return json({ platform: 'spotify', playlistId, results });
+      }
+
+      if (path === '/api/spotify/track') {
+        const trackId = url.searchParams.get('id');
+        if (!trackId) return json({ error: 'Missing ?id= parameter' }, 400);
+        if (!env.SPOTIFY_CLIENT_ID || !env.SPOTIFY_CLIENT_SECRET) {
+          return json({ error: 'Spotify credentials not configured on worker' }, 500);
+        }
+        const result = await fetchSpotifyTrack(trackId, env.SPOTIFY_CLIENT_ID, env.SPOTIFY_CLIENT_SECRET);
+        return json({ platform: 'spotify', trackId, results: [result] });
+      }
+
+      if (path === '/api/spotify/album') {
+        const albumId = url.searchParams.get('id');
+        if (!albumId) return json({ error: 'Missing ?id= parameter' }, 400);
+        if (!env.SPOTIFY_CLIENT_ID || !env.SPOTIFY_CLIENT_SECRET) {
+          return json({ error: 'Spotify credentials not configured on worker' }, 500);
+        }
+        const results = await fetchSpotifyAlbum(albumId, env.SPOTIFY_CLIENT_ID, env.SPOTIFY_CLIENT_SECRET);
+        return json({ platform: 'spotify', albumId, results });
       }
 
       return json({ error: 'Not found' }, 404);

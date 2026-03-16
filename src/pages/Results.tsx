@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Loader2 } from 'lucide-react';
+import { ArrowLeft, Loader2, RefreshCw, AlertTriangle } from 'lucide-react';
 import { usePlaylistStore } from '../stores/playlistStore.ts';
 import { usePlayerStore } from '../stores/playerStore.ts';
 import { TrackRow } from '../components/results/TrackRow.tsx';
@@ -17,7 +17,31 @@ export function Results() {
   const navigate = useNavigate();
   const currentPlaylist = usePlaylistStore((s) => s.currentPlaylist);
   const searchStatus = usePlaylistStore((s) => s.searchStatus);
+  const error = usePlaylistStore((s) => s.error);
   const { play } = usePlayerStore();
+
+  // Error state — show friendly message with retry/back buttons
+  if (searchStatus === 'error' && !currentPlaylist) {
+    return (
+      <div className="flex flex-col items-center justify-center gap-6 pt-24">
+        <div className="flex flex-col items-center gap-3 text-center max-w-md">
+          <AlertTriangle size={32} strokeWidth={1.5} className="text-status-error" />
+          <h2 className="font-display text-lg font-semibold text-text-primary">Something went wrong</h2>
+          <p className="text-sm text-text-secondary">{error}</p>
+        </div>
+        <div className="flex items-center gap-3">
+          <Button variant="secondary" size="sm" onClick={() => navigate('/')}>
+            <ArrowLeft size={14} strokeWidth={1.5} />
+            Back
+          </Button>
+          <Button variant="primary" size="sm" onClick={() => navigate('/')}>
+            <RefreshCw size={14} strokeWidth={1.5} />
+            Try again
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   if (!currentPlaylist) {
     return (

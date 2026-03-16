@@ -125,3 +125,81 @@ export async function fetchSpotifyPlaylist(
   console.log('[Spotify:Playlist] Done — total tracks:', results.length);
   return results;
 }
+
+/**
+ * Fetch a single track from Spotify by ID.
+ */
+export async function fetchSpotifyTrack(
+  trackId: string,
+  clientId: string,
+  clientSecret: string,
+): Promise<SpotifyTrackResult> {
+  console.log('[Spotify:Track] Fetching track:', trackId);
+  const token = await getToken(clientId, clientSecret);
+
+  const res = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+
+  console.log('[Spotify:Track] Status:', res.status);
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    console.error('[Spotify:Track] Error:', res.status, body);
+    if (res.status === 404) throw new Error('Spotify track not found.');
+    throw new Error(`Spotify API returned ${res.status}: ${body}`);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const track = (await res.json()) as any;
+
+  return {
+    title: track.name,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    artist: (track.artists ?? []).map((a: any) => a.name).join(', '),
+    album: track.album?.name,
+    duration: track.duration_ms ? Math.round(track.duration_ms / 1000) : undefined,
+    isrc: track.external_ids?.isrc,
+  };
+}
+
+/**
+ * Fetch all tracks from a Spotify album by ID.
+ */
+export async function fetchSpotifyAlbum(
+  albumId: string,
+  clientId: string,
+  clientSecret: string,
+): Promise<SpotifyTrackResult[]> {
+  console.log('[Spotify:Album] Fetching album:', albumId);
+  const token = await getToken(clientId, clientSecret);
+
+  // First get album info for the album name
+  const albumRes = await fetch(`https://api.spotify.com/v1/albums/${albumId}`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+
+  if (!albumRes.ok) {
+    const body = await albumRes.text().catch(() => '');
+    if (albumRes.status === 404) throw new Error('Spotify album not found.');
+    throw new Error(`Spotify API returned ${albumRes.status}: ${body}`);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const album = (await albumRes.json()) as any;
+  const albumName = album.name;
+  const results: SpotifyTrackResult[] = [];
+
+  for (const track of album.tracks?.items ?? []) {
+    results.push({
+      title: track.name,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      artist: (track.artists ?? []).map((a: any) => a.name).join(', '),
+      album: albumName,
+      duration: track.duration_ms ? Math.round(track.duration_ms / 1000) : undefined,
+    });
+  }
+
+  console.log('[Spotify:Album] Done — total tracks:', results.length);
+  return results;
+}

@@ -21,7 +21,9 @@ export function Home() {
   const inputLabel = inputType
     ? {
         text: null,
-        spotify_playlist: 'Spotify playlist detected — ready to import',
+        spotify_track: 'Spotify track detected — ready to search. Note: Spotify may occasionally return errors for some tracks.',
+        spotify_album: 'Spotify album detected — ready to import. Note: Spotify may occasionally be slow or unavailable.',
+        spotify_playlist: 'Spotify playlist detected — ready to import. Note: only public playlists are supported.',
         youtube_playlist: YOUTUBE_CONFIGURED
           ? 'YouTube playlist detected — ready to import'
           : 'YouTube playlist detected — set VITE_YOUTUBE_API_KEY in .env',

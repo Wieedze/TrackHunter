@@ -5,6 +5,8 @@
 export type InputType =
   | { type: 'text' }
   | { type: 'spotify_playlist'; id: string }
+  | { type: 'spotify_track'; id: string }
+  | { type: 'spotify_album'; id: string }
   | { type: 'youtube_playlist'; id: string }
   | { type: 'youtube_mix' }
   | { type: 'soundcloud_set'; url: string }
@@ -17,10 +19,26 @@ export class LinkResolver {
 
     // Spotify playlist
     const spotifyMatch = trimmed.match(
-      /open\.spotify\.com\/playlist\/([a-zA-Z0-9]+)/,
+      /open\.spotify\.com\/(?:intl-[a-z]{2}\/)?playlist\/([a-zA-Z0-9]+)/,
     );
     if (spotifyMatch) {
       return { type: 'spotify_playlist', id: spotifyMatch[1] };
+    }
+
+    // Spotify track
+    const spotifyTrackMatch = trimmed.match(
+      /open\.spotify\.com\/(?:intl-[a-z]{2}\/)?track\/([a-zA-Z0-9]+)/,
+    );
+    if (spotifyTrackMatch) {
+      return { type: 'spotify_track', id: spotifyTrackMatch[1] };
+    }
+
+    // Spotify album
+    const spotifyAlbumMatch = trimmed.match(
+      /open\.spotify\.com\/(?:intl-[a-z]{2}\/)?album\/([a-zA-Z0-9]+)/,
+    );
+    if (spotifyAlbumMatch) {
+      return { type: 'spotify_album', id: spotifyAlbumMatch[1] };
     }
 
     // YouTube playlist / mix
