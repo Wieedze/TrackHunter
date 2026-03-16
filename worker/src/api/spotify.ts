@@ -11,6 +11,19 @@ export interface SpotifyTrackResult {
   isrc?: string;
 }
 
+/**
+ * Clean up track titles by removing BPM indicators, "Original Mix", etc.
+ */
+function cleanTitle(title: string): string {
+  return title
+    .replace(/\s*[\(\[]\s*\d{2,3}\s*[Bb][Pp][Mm]\s*[\)\]]/g, '') // (150 Bpm), [148 BPM]
+    .replace(/\s*-\s*\d{2,3}\s*[Bb][Pp][Mm]\s*/g, '')             // - 150 Bpm
+    .replace(/\s*\d{2,3}\s*[Bb][Pp][Mm]\s*$/g, '')                 // trailing 150 Bpm
+    .replace(/\s*[\(\[]\s*Original Mix\s*[\)\]]/gi, '')             // (Original Mix)
+    .replace(/\s*-\s*Original Mix\s*$/gi, '')                       // - Original Mix
+    .trim();
+}
+
 // In-memory token cache (resets on cold start, which is fine)
 let cachedToken: string | null = null;
 let tokenExpiresAt = 0;
@@ -105,7 +118,7 @@ export async function fetchSpotifyPlaylist(
     const artist = (track.subtitle ?? '').replace(/\u00a0/g, ' ');
 
     results.push({
-      title: track.title,
+      title: cleanTitle(track.title),
       artist,
       duration: track.duration ? Math.round(track.duration / 1000) : undefined,
     });
@@ -143,7 +156,7 @@ export async function fetchSpotifyTrack(
   const track = (await res.json()) as any;
 
   return {
-    title: track.name,
+    title: cleanTitle(track.name),
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     artist: (track.artists ?? []).map((a: any) => a.name).join(', '),
     album: track.album?.name,
@@ -181,7 +194,7 @@ export async function fetchSpotifyAlbum(
 
   for (const track of album.tracks?.items ?? []) {
     results.push({
-      title: track.name,
+      title: cleanTitle(track.name),
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       artist: (track.artists ?? []).map((a: any) => a.name).join(', '),
       album: albumName,
