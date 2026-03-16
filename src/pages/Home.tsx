@@ -13,7 +13,7 @@ export function Home() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
   const { importAndSearch } = useSearch();
-  const { searchStatus, error } = usePlaylistStore();
+  const { searchStatus, error, setCurrentPlaylist, setSearchStatus, setError } = usePlaylistStore();
   const isLoading = searchStatus === 'parsing' || searchStatus === 'searching';
 
   // Detect input type for visual feedback
@@ -38,6 +38,10 @@ export function Home() {
 
   function handleSearch() {
     if (!input.trim() || isLoading) return;
+    // Reset previous search state before starting new one
+    setCurrentPlaylist(null);
+    setSearchStatus('idle');
+    setError(null);
     // Don't await — let the search run in the background while we navigate
     importAndSearch(input.trim()).catch(() => {});
     // Subscribe to store: navigate as soon as playlist is set
