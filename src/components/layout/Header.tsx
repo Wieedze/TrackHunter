@@ -1,8 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Search, Heart, Settings } from 'lucide-react';
+import { Search, Heart, Settings, Info, BookOpen } from 'lucide-react';
 
 const NAV_ITEMS = [
   { path: '/', label: 'Search', icon: Search },
+  { path: '/guide', label: 'Guide', icon: BookOpen },
+  { path: '/about', label: 'About', icon: Info },
   { path: '/wishlist', label: 'Wishlist', icon: Heart },
   { path: '/settings', label: 'Settings', icon: Settings },
 ] as const;

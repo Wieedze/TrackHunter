@@ -5,6 +5,8 @@ import { Home } from './pages/Home.tsx';
 import { Results } from './pages/Results.tsx';
 import { Wishlist } from './pages/Wishlist.tsx';
 import { Settings } from './pages/Settings.tsx';
+import { About } from './pages/About.tsx';
+import { Guide } from './pages/Guide.tsx';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -26,6 +28,8 @@ function App() {
             <Route path="/results" element={<Results />} />
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/guide" element={<Guide />} />
           </Route>
         </Routes>
       </BrowserRouter>
