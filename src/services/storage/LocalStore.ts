@@ -1,7 +1,7 @@
 import { get, set, del, keys } from 'idb-keyval';
 import { STORAGE_KEYS } from '../../types/storage.ts';
 import type { Playlist, WishlistItem } from '../../types/track.ts';
-import type { OAuthToken, UserSettings } from '../../types/storage.ts';
+import type { OAuthToken, UserSettings, SearchHistoryItem } from '../../types/storage.ts';
 import type { OAuthPlatform } from '../../types/platform.ts';
 
 /**
@@ -67,6 +67,25 @@ export class LocalStore {
 
   static saveSettings(settings: UserSettings): void {
     localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+  }
+
+  // ── Search History ───────────────────────────────────
+
+  static getHistory(): SearchHistoryItem[] {
+    const raw = localStorage.getItem(STORAGE_KEYS.HISTORY);
+    return raw ? JSON.parse(raw) as SearchHistoryItem[] : [];
+  }
+
+  static addToHistory(item: SearchHistoryItem): void {
+    const history = LocalStore.getHistory();
+    // Deduplicate by rawInput
+    const filtered = history.filter((h) => h.rawInput !== item.rawInput);
+    const updated = [item, ...filtered].slice(0, 20);
+    localStorage.setItem(STORAGE_KEYS.HISTORY, JSON.stringify(updated));
+  }
+
+  static clearHistory(): void {
+    localStorage.removeItem(STORAGE_KEYS.HISTORY);
   }
 
   // ── Cache ─────────────────────────────────────────────

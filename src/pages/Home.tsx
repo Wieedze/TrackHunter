@@ -1,10 +1,12 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Upload, Loader2, Check } from 'lucide-react';
+import { Search, Upload, Loader2, Check, Clock, X } from 'lucide-react';
 import { Button } from '../components/ui/Button.tsx';
 import { useSearch } from '../hooks/useSearch.ts';
 import { usePlaylistStore } from '../stores/playlistStore.ts';
 import { LinkResolver } from '../services/import/LinkResolver.ts';
+import { LocalStore } from '../services/storage/LocalStore.ts';
+import type { SearchHistoryItem } from '../types/storage.ts';
 
 const YOUTUBE_CONFIGURED = Boolean(import.meta.env.VITE_YOUTUBE_API_KEY);
 
@@ -15,6 +17,11 @@ export function Home() {
   const { importAndSearch } = useSearch();
   const { searchStatus, error, setCurrentPlaylist, setSearchStatus, setError } = usePlaylistStore();
   const isLoading = searchStatus === 'parsing' || searchStatus === 'searching';
+  const [history, setHistory] = useState<SearchHistoryItem[]>([]);
+
+  useEffect(() => {
+    setHistory(LocalStore.getHistory());
+  }, []);
 
   // Detect input type for visual feedback
   const inputType = input.trim() ? LinkResolver.detect(input.trim()) : null;
@@ -38,14 +45,14 @@ export function Home() {
     ? 'YouTube Mix/Radio not supported — only public playlists (list=PL...) can be imported'
     : null;
 
-  function handleSearch() {
-    if (!input.trim() || isLoading) return;
+  function launchSearch(value: string) {
+    if (!value.trim() || isLoading) return;
     // Reset previous search state before starting new one
     setCurrentPlaylist(null);
     setSearchStatus('idle');
     setError(null);
     // Don't await — let the search run in the background while we navigate
-    importAndSearch(input.trim()).catch(() => {});
+    importAndSearch(value.trim()).catch(() => {});
     // Subscribe to store: navigate as soon as playlist is set
     const unsub = usePlaylistStore.subscribe((state) => {
       if (state.currentPlaylist && state.searchStatus !== 'idle') {
@@ -53,6 +60,10 @@ export function Home() {
         navigate('/results');
       }
     });
+  }
+
+  function handleSearch() {
+    launchSearch(input);
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
@@ -185,6 +196,39 @@ export function Home() {
           </span>
         </div>
       </div>
+
+      {/* Search history */}
+      {history.length > 0 && (
+        <div className="w-full max-w-2xl">
+          <div className="flex items-center justify-between mb-2">
+            <span className="flex items-center gap-1.5 text-xs text-text-tertiary">
+              <Clock size={12} strokeWidth={1.5} />
+              Recent searches
+            </span>
+            <button
+              onClick={() => { LocalStore.clearHistory(); setHistory([]); }}
+              className="flex items-center gap-1 text-xs text-text-tertiary hover:text-text-secondary transition-colors"
+            >
+              <X size={12} strokeWidth={1.5} />
+              Clear
+            </button>
+          </div>
+          <div className="space-y-1">
+            {history.slice(0, 5).map((item) => (
+              <button
+                key={item.id}
+                onClick={() => { setInput(item.rawInput); }}
+                className="w-full flex items-center justify-between rounded-sm border border-border bg-bg-secondary px-3 py-2 text-left transition-colors hover:border-border-hover"
+              >
+                <span className="text-sm text-text-primary truncate">{item.name}</span>
+                <span className="ml-2 shrink-0 text-xs text-text-tertiary">
+                  {item.trackCount} tracks
+                </span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* How it works */}
       <section className="mt-12 max-w-2xl text-center">

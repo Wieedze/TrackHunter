@@ -12,6 +12,7 @@ import { MusicBrainzProvider } from '../services/providers/MusicBrainzProvider.t
 import { BandcampProvider } from '../services/providers/BandcampProvider.ts';
 import { BeatportProvider } from '../services/providers/BeatportProvider.ts';
 import { DiscogsProvider } from '../services/providers/DiscogsProvider.ts';
+import { LocalStore } from '../services/storage/LocalStore.ts';
 import type { Playlist, TrackResult } from '../types/track.ts';
 
 // Singleton orchestrator with all available providers
@@ -181,6 +182,16 @@ export function useSearch() {
 
         setCurrentPlaylist(playlist);
         setSearchStatus('searching');
+
+        // Save to search history
+        LocalStore.addToHistory({
+          id: playlist.id,
+          name: playlist.name,
+          source,
+          rawInput: rawInput,
+          trackCount: tracks.length,
+          searchedAt: new Date().toISOString(),
+        });
 
         // Search tracks in parallel batches of CONCURRENCY
         const CONCURRENCY = 3;

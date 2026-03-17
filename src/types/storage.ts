@@ -25,10 +25,20 @@ export interface UserSettings {
  * th_settings      → UserSettings
  * th_cache_{hash}  → PlatformResult[] (TTL 24h)
  */
+export interface SearchHistoryItem {
+  id: string;
+  name: string;
+  source: string;
+  rawInput: string;
+  trackCount: number;
+  searchedAt: string;
+}
+
 export const STORAGE_KEYS = {
   PLAYLISTS: 'th_playlists',
   WISHLIST: 'th_wishlist',
   OAUTH_PREFIX: 'th_oauth_',
   SETTINGS: 'th_settings',
   CACHE_PREFIX: 'th_cache_',
+  HISTORY: 'th_history',
 } as const;
