@@ -1,19 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
-import { BarChart3, Music, Search, Heart, Disc3 } from 'lucide-react';
+import { BarChart3, Music, Search, Heart } from 'lucide-react';
 import { LocalStore } from '../services/storage/LocalStore.ts';
 import type { WishlistItem } from '../types/track.ts';
 import type { SearchHistoryItem } from '../types/storage.ts';
-import type { Platform } from '../types/platform.ts';
-
-const PLATFORM_COLORS: Record<string, string> = {
-  bandcamp: 'bg-platform-bandcamp',
-  beatport: 'bg-platform-beatport',
-  discogs: 'bg-platform-discogs',
-  musicbrainz: 'bg-platform-musicbrainz',
-  spotify: 'bg-platform-spotify',
-  youtube: 'bg-platform-youtube',
-  soundcloud: 'bg-platform-soundcloud',
-};
 
 export function Stats() {
   const [history, setHistory] = useState<SearchHistoryItem[]>([]);

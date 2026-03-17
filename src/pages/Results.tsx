@@ -123,7 +123,7 @@ export function Results() {
   }, [currentPlaylist.tracks, filters]);
 
   function handleShare() {
-    const trackLines = currentPlaylist.tracks
+    const trackLines = currentPlaylist!.tracks
       .map((t) => `${t.input.artist} - ${t.input.title}`)
       .join('\n');
     const encoded = btoa(trackLines);

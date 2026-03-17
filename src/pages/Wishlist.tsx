@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Heart, Trash2, Music, FolderPlus, Folder, X, Search, Play } from 'lucide-react';
+import { Heart, Trash2, Music, FolderPlus, Folder, X, Search } from 'lucide-react';
 import { useWishlist } from '../hooks/useWishlist.ts';
 import { useSearch } from '../hooks/useSearch.ts';
 import { usePlaylistStore } from '../stores/playlistStore.ts';
-import { usePlayerStore } from '../stores/playerStore.ts';
-import { EMBEDDABLE_PLATFORMS } from '../services/player/embedBuilder.ts';
 
 export function Wishlist() {
   const {
@@ -27,7 +25,6 @@ export function Wishlist() {
   const navigate = useNavigate();
   const { importAndSearch } = useSearch();
   const { setCurrentPlaylist, setSearchStatus, setError } = usePlaylistStore();
-  const { play } = usePlayerStore();
 
   function handleSearch(artist: string, title: string) {
     const query = `${artist} - ${title}`;
