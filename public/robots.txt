@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /settings
+
+Sitemap: https://track-hunter.com/sitemap.xml
+
+# Optimize crawl budget
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 1
+
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1

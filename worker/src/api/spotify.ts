@@ -11,6 +11,19 @@ export interface SpotifyTrackResult {
   isrc?: string;
 }
 
+/**
+ * Clean up track titles by removing BPM indicators, "Original Mix", etc.
+ */
+function cleanTitle(title: string): string {
+  return title
+    .replace(/\s*[\(\[]\s*\d{2,3}\s*[Bb][Pp][Mm]\s*[\)\]]/g, '') // (150 Bpm), [148 BPM]
+    .replace(/\s*-\s*\d{2,3}\s*[Bb][Pp][Mm]\s*/g, '')             // - 150 Bpm
+    .replace(/\s*\d{2,3}\s*[Bb][Pp][Mm]\s*$/g, '')                 // trailing 150 Bpm
+    .replace(/\s*[\(\[]\s*Original Mix\s*[\)\]]/gi, '')             // (Original Mix)
+    .replace(/\s*-\s*Original Mix\s*$/gi, '')                       // - Original Mix
+    .trim();
+}
+
 // In-memory token cache (resets on cold start, which is fine)
 let cachedToken: string | null = null;
 let tokenExpiresAt = 0;
@@ -54,74 +67,141 @@ async function getToken(clientId: string, clientSecret: string): Promise<string>
 }
 
 /**
- * Fetch all tracks from a Spotify playlist (handles pagination).
+ * Fetch all tracks from a Spotify playlist via the embed page.
+ * This bypasses the API playlist endpoint restriction for dev apps.
  */
 export async function fetchSpotifyPlaylist(
   playlistId: string,
-  clientId: string,
-  clientSecret: string,
+  _clientId: string,
+  _clientSecret: string,
 ): Promise<SpotifyTrackResult[]> {
-  console.log('[Spotify:Playlist] Fetching playlist:', playlistId);
-  let token = await getToken(clientId, clientSecret);
+  console.log('[Spotify:Playlist] Fetching playlist via embed:', playlistId);
+
+  const res = await fetch(`https://open.spotify.com/embed/playlist/${playlistId}`, {
+    headers: {
+      'User-Agent': 'Mozilla/5.0 (compatible; TrackHunter/1.0)',
+    },
+  });
+
+  console.log('[Spotify:Playlist] Embed status:', res.status);
+
+  if (!res.ok) {
+    if (res.status === 404) throw new Error('Spotify playlist not found. Is it public?');
+    throw new Error(`Spotify embed returned ${res.status}`);
+  }
+
+  const html = await res.text();
+  const match = html.match(/<script id="__NEXT_DATA__"[^>]*>(.*?)<\/script>/);
+  if (!match) {
+    console.error('[Spotify:Playlist] Could not find __NEXT_DATA__ in embed page');
+    throw new Error('Could not parse Spotify playlist. It may be private or unavailable.');
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let data: any;
+  try {
+    data = JSON.parse(match[1]);
+  } catch {
+    throw new Error('Failed to parse Spotify embed data.');
+  }
+
+  const trackList = data?.props?.pageProps?.state?.data?.entity?.trackList ?? [];
+  console.log('[Spotify:Playlist] Found', trackList.length, 'tracks in embed');
+
   const results: SpotifyTrackResult[] = [];
-  let retried = false;
-  let page = 0;
 
-  let nextUrl: string | null =
-    `https://api.spotify.com/v1/playlists/${playlistId}/tracks?limit=100&fields=items(track(name,artists,album,duration_ms,external_ids)),next`;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  for (const track of trackList) {
+    if (!track.title) continue;
 
-  while (nextUrl) {
-    console.log('[Spotify:Playlist] Fetching page', page, ':', nextUrl);
-    const res = await fetch(nextUrl, {
-      headers: { 'Authorization': `Bearer ${token}` },
+    // subtitle contains artist(s) separated by non-breaking spaces and commas
+    const artist = (track.subtitle ?? '').replace(/\u00a0/g, ' ');
+
+    results.push({
+      title: cleanTitle(track.title),
+      artist,
+      duration: track.duration ? Math.round(track.duration / 1000) : undefined,
     });
-
-    console.log('[Spotify:Playlist] Page', page, 'status:', res.status);
-
-    if (!res.ok) {
-      const body = await res.text().catch(() => '');
-      console.error('[Spotify:Playlist] Error on page', page, ':', res.status, body);
-      // If 401/403 and we haven't retried yet, invalidate token cache and retry
-      if ((res.status === 401 || res.status === 403) && !retried) {
-        console.log('[Spotify:Playlist] Retrying with fresh token...');
-        cachedToken = null;
-        tokenExpiresAt = 0;
-        token = await getToken(clientId, clientSecret);
-        retried = true;
-        continue; // Retry same URL with fresh token
-      }
-      if (res.status === 404) throw new Error('Spotify playlist not found. Is it public?');
-      throw new Error(`Spotify API returned ${res.status}: ${body}`);
-    }
-
-    retried = false; // Reset on success
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const data = (await res.json()) as any;
-    console.log('[Spotify:Playlist] Page', page, '- items:', data.items?.length ?? 0, '- has next:', !!data.next);
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    for (const item of data.items ?? []) {
-      const track = item.track;
-      if (!track || !track.name) {
-        console.log('[Spotify:Playlist] Skipping item (no track/name):', JSON.stringify(item).slice(0, 100));
-        continue;
-      }
-
-      results.push({
-        title: track.name,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        artist: (track.artists ?? []).map((a: any) => a.name).join(', '),
-        album: track.album?.name,
-        duration: track.duration_ms ? Math.round(track.duration_ms / 1000) : undefined,
-        isrc: track.external_ids?.isrc,
-      });
-    }
-
-    nextUrl = data.next ?? null;
-    page++;
   }
 
   console.log('[Spotify:Playlist] Done — total tracks:', results.length);
+  return results;
+}
+
+/**
+ * Fetch a single track from Spotify by ID.
+ */
+export async function fetchSpotifyTrack(
+  trackId: string,
+  clientId: string,
+  clientSecret: string,
+): Promise<SpotifyTrackResult> {
+  console.log('[Spotify:Track] Fetching track:', trackId);
+  const token = await getToken(clientId, clientSecret);
+
+  const res = await fetch(`https://api.spotify.com/v1/tracks/${trackId}`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+
+  console.log('[Spotify:Track] Status:', res.status);
+
+  if (!res.ok) {
+    const body = await res.text().catch(() => '');
+    console.error('[Spotify:Track] Error:', res.status, body);
+    if (res.status === 404) throw new Error('Spotify track not found.');
+    throw new Error(`Spotify API returned ${res.status}: ${body}`);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const track = (await res.json()) as any;
+
+  return {
+    title: cleanTitle(track.name),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    artist: (track.artists ?? []).map((a: any) => a.name).join(', '),
+    album: track.album?.name,
+    duration: track.duration_ms ? Math.round(track.duration_ms / 1000) : undefined,
+    isrc: track.external_ids?.isrc,
+  };
+}
+
+/**
+ * Fetch all tracks from a Spotify album by ID.
+ */
+export async function fetchSpotifyAlbum(
+  albumId: string,
+  clientId: string,
+  clientSecret: string,
+): Promise<SpotifyTrackResult[]> {
+  console.log('[Spotify:Album] Fetching album:', albumId);
+  const token = await getToken(clientId, clientSecret);
+
+  // First get album info for the album name
+  const albumRes = await fetch(`https://api.spotify.com/v1/albums/${albumId}`, {
+    headers: { 'Authorization': `Bearer ${token}` },
+  });
+
+  if (!albumRes.ok) {
+    const body = await albumRes.text().catch(() => '');
+    if (albumRes.status === 404) throw new Error('Spotify album not found.');
+    throw new Error(`Spotify API returned ${albumRes.status}: ${body}`);
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const album = (await albumRes.json()) as any;
+  const albumName = album.name;
+  const results: SpotifyTrackResult[] = [];
+
+  for (const track of album.tracks?.items ?? []) {
+    results.push({
+      title: cleanTitle(track.name),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      artist: (track.artists ?? []).map((a: any) => a.name).join(', '),
+      album: albumName,
+      duration: track.duration_ms ? Math.round(track.duration_ms / 1000) : undefined,
+    });
+  }
+
+  console.log('[Spotify:Album] Done — total tracks:', results.length);
   return results;
 }

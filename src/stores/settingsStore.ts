@@ -14,7 +14,6 @@ const DEFAULT_PLATFORMS = [
   Platform.BANDCAMP,
   Platform.BEATPORT,
   Platform.DISCOGS,
-  Platform.DEEZER,
   Platform.MUSICBRAINZ,
 ];
 

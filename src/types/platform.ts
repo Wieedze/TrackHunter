@@ -5,7 +5,6 @@ export const Platform = {
   DISCOGS: 'discogs',
   MUSICBRAINZ: 'musicbrainz',
   YOUTUBE: 'youtube',
-  DEEZER: 'deezer',
   SOUNDCLOUD: 'soundcloud',
 } as const;
 
@@ -14,7 +13,6 @@ export type Platform = (typeof Platform)[keyof typeof Platform];
 export const OAuthPlatform = {
   SPOTIFY: 'spotify',
   YOUTUBE: 'youtube',
-  DEEZER: 'deezer',
   SOUNDCLOUD: 'soundcloud',
 } as const;
 

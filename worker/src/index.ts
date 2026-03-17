@@ -12,7 +12,7 @@
 import { scrapeBandcamp } from './scrapers/bandcamp.ts';
 import { scrapeBeatport } from './scrapers/beatport.ts';
 import { scrapeSoundCloudSet } from './scrapers/soundcloud.ts';
-import { fetchSpotifyPlaylist } from './api/spotify.ts';
+import { fetchSpotifyPlaylist, fetchSpotifyTrack, fetchSpotifyAlbum } from './api/spotify.ts';
 
 export interface Env {
   SPOTIFY_CLIENT_ID?: string;
@@ -74,6 +74,40 @@ export default {
         const results = await fetchSpotifyPlaylist(playlistId, env.SPOTIFY_CLIENT_ID, env.SPOTIFY_CLIENT_SECRET);
         console.log('[Worker:Spotify] Got', results.length, 'tracks');
         return json({ platform: 'spotify', playlistId, results });
+      }
+
+      if (path === '/api/spotify/track') {
+        const trackId = url.searchParams.get('id');
+        if (!trackId) return json({ error: 'Missing ?id= parameter' }, 400);
+        if (!env.SPOTIFY_CLIENT_ID || !env.SPOTIFY_CLIENT_SECRET) {
+          return json({ error: 'Spotify credentials not configured on worker' }, 500);
+        }
+        const result = await fetchSpotifyTrack(trackId, env.SPOTIFY_CLIENT_ID, env.SPOTIFY_CLIENT_SECRET);
+        return json({ platform: 'spotify', trackId, results: [result] });
+      }
+
+      if (path === '/api/spotify/album') {
+        const albumId = url.searchParams.get('id');
+        if (!albumId) return json({ error: 'Missing ?id= parameter' }, 400);
+        if (!env.SPOTIFY_CLIENT_ID || !env.SPOTIFY_CLIENT_SECRET) {
+          return json({ error: 'Spotify credentials not configured on worker' }, 500);
+        }
+        const results = await fetchSpotifyAlbum(albumId, env.SPOTIFY_CLIENT_ID, env.SPOTIFY_CLIENT_SECRET);
+        return json({ platform: 'spotify', albumId, results });
+      }
+
+      // Resolve Bandcamp track page → numeric track ID for embed player
+      if (path === '/resolve/bandcamp') {
+        const trackUrl = url.searchParams.get('url');
+        if (!trackUrl) return json({ error: 'Missing ?url= parameter' }, 400);
+        const res = await fetch(trackUrl, {
+          headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' },
+        });
+        if (!res.ok) return json({ error: 'Failed to fetch Bandcamp page' }, 502);
+        const html = await res.text();
+        const trackIdMatch = html.match(/\/track=(\d+)/) || html.match(/data-tralbum-id="(\d+)"/);
+        if (!trackIdMatch) return json({ error: 'Track ID not found on page' }, 404);
+        return json({ trackId: trackIdMatch[1] });
       }
 
       return json({ error: 'Not found' }, 404);

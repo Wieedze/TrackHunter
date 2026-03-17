@@ -40,7 +40,7 @@ export class MusicBrainzProvider extends BaseProvider {
     const url = `${this.baseUrl}/recording?query=${encodeURIComponent(searchQuery)}&fmt=json&limit=5`;
 
     const response = await fetch(url, {
-      headers: { 'User-Agent': 'TrackHunter/0.1.0 (https://trackhunter.app)' },
+      headers: { 'User-Agent': 'TrackHunter/1.0.0 (https://trackhunter.app)' },
     });
     if (!response.ok) return [];
 
@@ -68,7 +68,7 @@ export class MusicBrainzProvider extends BaseProvider {
   async isAvailable(): Promise<boolean> {
     try {
       const response = await fetch(`${this.baseUrl}/recording?query=test&fmt=json&limit=1`, {
-        headers: { 'User-Agent': 'TrackHunter/0.1.0 (https://trackhunter.app)' },
+        headers: { 'User-Agent': 'TrackHunter/1.0.0 (https://trackhunter.app)' },
       });
       return response.ok;
     } catch {

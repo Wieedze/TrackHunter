@@ -72,4 +72,68 @@ export class SpotifyPlaylistFetcher {
       isrc: t.isrc,
     }));
   }
+
+  static async fetchTrack(trackId: string): Promise<TrackInput[]> {
+    const url = `${WORKER_URL}/api/spotify/track?id=${encodeURIComponent(trackId)}`;
+    console.log('[SpotifyFetcher] Fetching track:', url);
+
+    let res: Response;
+    try {
+      res = await fetch(url);
+    } catch (err) {
+      console.error('[SpotifyFetcher] Network error:', err);
+      throw new Error(`Cannot reach worker at ${WORKER_URL}: ${err instanceof Error ? err.message : err}`);
+    }
+
+    if (!res.ok) {
+      const rawBody = await res.text().catch(() => '');
+      let parsed: { error?: string } | null = null;
+      try { parsed = JSON.parse(rawBody); } catch { /* not JSON */ }
+      throw new Error(parsed?.error ?? `Spotify fetch failed: ${res.status}`);
+    }
+
+    const data = (await res.json()) as SpotifyWorkerResponse;
+    if (data.error) throw new Error(data.error);
+
+    return data.results.map((t) => ({
+      id: nanoid(),
+      artist: t.artist,
+      title: t.title,
+      album: t.album,
+      duration: t.duration,
+      isrc: t.isrc,
+    }));
+  }
+
+  static async fetchAlbum(albumId: string): Promise<TrackInput[]> {
+    const url = `${WORKER_URL}/api/spotify/album?id=${encodeURIComponent(albumId)}`;
+    console.log('[SpotifyFetcher] Fetching album:', url);
+
+    let res: Response;
+    try {
+      res = await fetch(url);
+    } catch (err) {
+      console.error('[SpotifyFetcher] Network error:', err);
+      throw new Error(`Cannot reach worker at ${WORKER_URL}: ${err instanceof Error ? err.message : err}`);
+    }
+
+    if (!res.ok) {
+      const rawBody = await res.text().catch(() => '');
+      let parsed: { error?: string } | null = null;
+      try { parsed = JSON.parse(rawBody); } catch { /* not JSON */ }
+      throw new Error(parsed?.error ?? `Spotify fetch failed: ${res.status}`);
+    }
+
+    const data = (await res.json()) as SpotifyWorkerResponse;
+    if (data.error) throw new Error(data.error);
+
+    return data.results.map((t) => ({
+      id: nanoid(),
+      artist: t.artist,
+      title: t.title,
+      album: t.album,
+      duration: t.duration,
+      isrc: t.isrc,
+    }));
+  }
 }

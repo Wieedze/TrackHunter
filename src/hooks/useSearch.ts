@@ -12,6 +12,7 @@ import { MusicBrainzProvider } from '../services/providers/MusicBrainzProvider.t
 import { BandcampProvider } from '../services/providers/BandcampProvider.ts';
 import { BeatportProvider } from '../services/providers/BeatportProvider.ts';
 import { DiscogsProvider } from '../services/providers/DiscogsProvider.ts';
+import { LocalStore } from '../services/storage/LocalStore.ts';
 import type { Playlist, TrackResult } from '../types/track.ts';
 
 // Singleton orchestrator with all available providers
@@ -24,6 +25,42 @@ const orchestrator = new SearchOrchestrator([
   new BandcampProvider(),
   new BeatportProvider(),
 ]);
+
+/**
+ * Translates raw API errors into user-friendly messages.
+ */
+function friendlyError(err: unknown): string {
+  const msg = err instanceof Error ? err.message : String(err);
+
+  // Spotify
+  if (msg.includes('403')) return 'This playlist is private or inaccessible. Make sure it is set to public on Spotify.';
+  if (msg.includes('404') && msg.toLowerCase().includes('spotify')) return 'Spotify playlist not found. Check the link and try again.';
+  if (msg.includes('429')) return 'Too many requests. Please wait a minute and try again.';
+  if (msg.includes('token') && msg.includes('400')) return 'Spotify authentication error. Please try again in a few minutes.';
+
+  // Network
+  if (msg.includes('Cannot reach worker') || msg.includes('Failed to fetch') || msg.includes('NetworkError'))
+    return 'Service temporarily unavailable. Please check your connection and try again.';
+
+  // YouTube
+  if (msg.toLowerCase().includes('youtube') && msg.includes('403')) return 'YouTube API quota exceeded. Try again later or paste tracks manually.';
+
+  // Fallback
+  return msg;
+}
+
+/**
+ * Retry wrapper — attempts fn once, retries once on failure with a short delay.
+ */
+async function withRetry<T>(fn: () => Promise<T>, delayMs = 1500): Promise<T> {
+  try {
+    return await fn();
+  } catch (firstErr) {
+    console.log('[Retry] First attempt failed, retrying in', delayMs, 'ms...', firstErr);
+    await new Promise((r) => setTimeout(r, delayMs));
+    return fn();
+  }
+}
 
 /**
  * Hook that orchestrates the full import + search flow.
@@ -55,8 +92,36 @@ export function useSearch() {
             searchedAt: new Date().toISOString(),
             status: 'pending' as const,
           }));
+        } else if (inputType.type === 'spotify_track') {
+          const parsed = await withRetry(() => SpotifyPlaylistFetcher.fetchTrack(inputType.id));
+          if (parsed.length === 0) {
+            setError('Spotify track not found.');
+            setSearchStatus('idle');
+            return;
+          }
+          tracks = parsed.map((input) => ({
+            input,
+            results: [],
+            searchedAt: new Date().toISOString(),
+            status: 'pending' as const,
+          }));
+          source = 'spotify_link';
+        } else if (inputType.type === 'spotify_album') {
+          const parsed = await withRetry(() => SpotifyPlaylistFetcher.fetchAlbum(inputType.id));
+          if (parsed.length === 0) {
+            setError('No tracks found in Spotify album.');
+            setSearchStatus('idle');
+            return;
+          }
+          tracks = parsed.map((input) => ({
+            input,
+            results: [],
+            searchedAt: new Date().toISOString(),
+            status: 'pending' as const,
+          }));
+          source = 'spotify_link';
         } else if (inputType.type === 'spotify_playlist') {
-          const parsed = await SpotifyPlaylistFetcher.fetch(inputType.id);
+          const parsed = await withRetry(() => SpotifyPlaylistFetcher.fetch(inputType.id));
           if (parsed.length === 0) {
             setError('No tracks found in Spotify playlist.');
             setSearchStatus('idle');
@@ -70,7 +135,7 @@ export function useSearch() {
           }));
           source = 'spotify_link';
         } else if (inputType.type === 'youtube_playlist') {
-          const { tracks: parsed, skipped } = await YouTubePlaylistFetcher.fetch(inputType.id);
+          const { tracks: parsed, skipped } = await withRetry(() => YouTubePlaylistFetcher.fetch(inputType.id));
           if (parsed.length === 0) {
             const hint = skipped.length > 0
               ? ` ${skipped.length} titles could not be parsed (no "Artist - Title" format).`
@@ -87,7 +152,7 @@ export function useSearch() {
           }));
           source = 'youtube_link';
         } else if (inputType.type === 'soundcloud_set') {
-          const parsed = await SoundCloudSetFetcher.fetch(inputType.url);
+          const parsed = await withRetry(() => SoundCloudSetFetcher.fetch(inputType.url));
           if (parsed.length === 0) {
             setError('No tracks found in SoundCloud set.');
             setSearchStatus('idle');
@@ -117,6 +182,16 @@ export function useSearch() {
 
         setCurrentPlaylist(playlist);
         setSearchStatus('searching');
+
+        // Save to search history
+        LocalStore.addToHistory({
+          id: playlist.id,
+          name: playlist.name,
+          source,
+          rawInput: rawInput,
+          trackCount: tracks.length,
+          searchedAt: new Date().toISOString(),
+        });
 
         // Search tracks in parallel batches of CONCURRENCY
         const CONCURRENCY = 3;
@@ -159,7 +234,7 @@ export function useSearch() {
 
         setSearchStatus('done');
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Unknown error';
+        const message = friendlyError(err);
         setError(message);
         setSearchStatus('error');
       }
