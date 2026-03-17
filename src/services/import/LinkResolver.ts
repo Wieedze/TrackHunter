@@ -10,7 +10,6 @@ export type InputType =
   | { type: 'youtube_playlist'; id: string }
   | { type: 'youtube_mix' }
   | { type: 'soundcloud_set'; url: string }
-  | { type: 'deezer_playlist'; id: string }
   | { type: 'unknown_link'; url: string };
 
 export class LinkResolver {
@@ -57,12 +56,6 @@ export class LinkResolver {
     // SoundCloud set
     if (/soundcloud\.com\/.*\/sets\//.test(trimmed)) {
       return { type: 'soundcloud_set', url: trimmed };
-    }
-
-    // Deezer playlist
-    const deezerMatch = trimmed.match(/deezer\.com\/.*\/playlist\/(\d+)/);
-    if (deezerMatch) {
-      return { type: 'deezer_playlist', id: deezerMatch[1] };
     }
 
     // Generic URL

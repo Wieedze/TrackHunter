@@ -31,7 +31,6 @@
   --color-platform-beatport: #94D500;
   --color-platform-discogs: #333333;
   --color-platform-youtube: #FF0000;
-  --color-platform-deezer: #A238FF;
   --color-platform-soundcloud: #FF5500;
   --color-platform-musicbrainz: #BA478F;
 
@@ -52,6 +51,35 @@
   --font-mono: "JetBrains Mono", monospace;
 }
 
+/* ── Light mode overrides ─────────────────────────────────── */
+.light {
+  --color-bg-primary: #FAFAFA;
+  --color-bg-secondary: #FFFFFF;
+  --color-bg-tertiary: #F0F0F0;
+  --color-bg-elevated: #FFFFFF;
+
+  --color-text-primary: #1A1A1A;
+  --color-text-secondary: #666666;
+  --color-text-tertiary: #999999;
+  --color-text-inverse: #FFFFFF;
+
+  --color-accent: #1DB954;
+  --color-accent-hover: #1AA34A;
+  --color-accent-muted: #1DB95420;
+  --color-accent-dark: #158A3E;
+
+  --color-border: #E5E5E5;
+  --color-border-hover: #CCCCCC;
+  --color-border-active: #1DB954;
+
+  --color-status-success: #1DB954;
+  --color-status-warning: #E5960A;
+  --color-status-error: #DC2626;
+  --color-status-info: #2563EB;
+
+  --color-platform-discogs: #999999;
+}
+
 /* ── Base styles ──────────────────────────────────────────── */
 
 body {
@@ -61,6 +89,13 @@ body {
   background-color: var(--color-bg-primary);
   color: var(--color-text-primary);
   font-family: var(--font-body);
+}
+
+/* Light mode body overrides */
+.light body,
+.light {
+  background-color: var(--color-bg-primary);
+  color: var(--color-text-primary);
 }
 
 /* Scrollbar styling */

@@ -19,7 +19,7 @@ export function Guide() {
         <ol className="space-y-1.5 text-sm text-accent list-decimal list-inside">
           <li><a href="#import-spotify" className="hover:underline">Import a Spotify playlist</a></li>
           <li><a href="#import-youtube" className="hover:underline">Import from YouTube</a></li>
-          <li><a href="#import-soundcloud" className="hover:underline">Import from SoundCloud & Deezer</a></li>
+          <li><a href="#import-soundcloud" className="hover:underline">Import from SoundCloud</a></li>
           <li><a href="#manual-search" className="hover:underline">Manual track search</a></li>
           <li><a href="#understanding-results" className="hover:underline">Understanding your results</a></li>
           <li><a href="#wishlist" className="hover:underline">Using the wishlist</a></li>
@@ -87,14 +87,14 @@ export function Guide() {
         </div>
       </section>
 
-      {/* Import SoundCloud & Deezer */}
+      {/* Import SoundCloud */}
       <section id="import-soundcloud" className="max-w-2xl w-full scroll-mt-20">
         <h2 className="font-display text-lg font-semibold text-text-primary">
-          3. Import from SoundCloud & Deezer
+          3. Import from SoundCloud
         </h2>
         <div className="mt-4 space-y-3 text-sm text-text-secondary leading-relaxed">
           <p>
-            You can also import from SoundCloud sets and Deezer playlists. Simply copy the URL from
+            You can also import from SoundCloud sets. Simply copy the URL from
             your browser and paste it into the TrackHunter search box. The tracks will be extracted
             and searched automatically.
           </p>

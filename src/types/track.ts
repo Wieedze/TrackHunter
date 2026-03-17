@@ -38,4 +38,11 @@ export interface WishlistItem {
   targetPlatforms: import('./platform.ts').Platform[];
   addedAt: string;
   lastChecked?: string;
+  folderId?: string;
+}
+
+export interface WishlistFolder {
+  id: string;
+  name: string;
+  createdAt: string;
 }

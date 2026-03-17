@@ -1,44 +1,53 @@
 import { create } from 'zustand';
 import type { PlayerState } from '../types/player.ts';
+import { buildEmbedUrl, resolveBandcampEmbed } from '../services/player/embedBuilder.ts';
 
 interface PlayerStore extends PlayerState {
-  play: (trackId: string, previewUrl: string, platform: string) => void;
-  pause: () => void;
-  resume: () => void;
+  play: (trackId: string, url: string, platform: string, title: string) => void;
   stop: () => void;
-  setProgress: (progress: number) => void;
-  setVolume: (volume: number) => void;
 }
 
-export const usePlayerStore = create<PlayerStore>((set) => ({
+export const usePlayerStore = create<PlayerStore>((set, get) => ({
   isPlaying: false,
   currentTrackId: null,
-  currentPreviewUrl: null,
   currentPlatform: null,
-  progress: 0,
-  duration: 30,
-  volume: 0.8,
+  currentUrl: null,
+  embedUrl: null,
+  trackTitle: null,
 
-  play: (trackId, previewUrl, platform) =>
+  play: (trackId, url, platform, title) => {
+    const rawEmbed = buildEmbedUrl(platform, url);
+    if (!rawEmbed) return;
+
+    // Set playing state immediately (embedUrl may be null briefly for Bandcamp)
     set({
       isPlaying: true,
       currentTrackId: trackId,
-      currentPreviewUrl: previewUrl,
       currentPlatform: platform,
-      progress: 0,
-    }),
+      currentUrl: url,
+      embedUrl: rawEmbed.startsWith('bandcamp:') ? null : rawEmbed,
+      trackTitle: title,
+    });
 
-  pause: () => set({ isPlaying: false }),
-  resume: () => set({ isPlaying: true }),
+    // Resolve Bandcamp embed asynchronously
+    if (rawEmbed.startsWith('bandcamp:')) {
+      const pageUrl = rawEmbed.slice('bandcamp:'.length);
+      resolveBandcampEmbed(pageUrl).then((resolved) => {
+        // Only update if still playing the same track
+        if (get().currentTrackId === trackId) {
+          set({ embedUrl: resolved });
+        }
+      });
+    }
+  },
+
   stop: () =>
     set({
       isPlaying: false,
       currentTrackId: null,
-      currentPreviewUrl: null,
       currentPlatform: null,
-      progress: 0,
+      currentUrl: null,
+      embedUrl: null,
+      trackTitle: null,
     }),
-
-  setProgress: (progress) => set({ progress }),
-  setVolume: (volume) => set({ volume }),
 }));
