@@ -14,6 +14,9 @@ export function Footer() {
           <Link to="/guide" className="text-xs text-text-tertiary hover:text-text-secondary transition-colors no-underline">
             Guide
           </Link>
+          <Link to="/blog" className="text-xs text-text-tertiary hover:text-text-secondary transition-colors no-underline">
+            Blog
+          </Link>
           <span className="text-xs text-text-tertiary">
             Search. Compare. Collect.
           </span>

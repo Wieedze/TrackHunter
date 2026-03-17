@@ -1,9 +1,10 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Search, Heart, Settings, Info, BookOpen } from 'lucide-react';
+import { Search, Heart, Settings, Info, BookOpen, FileText } from 'lucide-react';
 
 const NAV_ITEMS = [
   { path: '/', label: 'Search', icon: Search },
   { path: '/guide', label: 'Guide', icon: BookOpen },
+  { path: '/blog', label: 'Blog', icon: FileText },
   { path: '/about', label: 'About', icon: Info },
   { path: '/wishlist', label: 'Wishlist', icon: Heart },
   { path: '/settings', label: 'Settings', icon: Settings },
@@ -24,7 +25,7 @@ export function Header() {
         {/* Navigation */}
         <nav className="flex items-center gap-1">
           {NAV_ITEMS.map(({ path, label, icon: Icon }) => {
-            const isActive = location.pathname === path;
+            const isActive = location.pathname === path || (path === '/blog' && location.pathname.startsWith('/blog'));
             return (
               <Link
                 key={path}
