@@ -1,9 +1,10 @@
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, Music, Loader2, Search } from 'lucide-react';
+import { ChevronDown, ChevronUp, Music, Loader2, Search, Heart } from 'lucide-react';
 import type { TrackResult } from '../../types/track.ts';
 import type { PlatformResult } from '../../types/platform.ts';
 import { Platform } from '../../types/platform.ts';
 import { PlatformGroup } from './PlatformGroup.tsx';
+import { useWishlist } from '../../hooks/useWishlist.ts';
 
 interface TrackRowProps {
   track: TrackResult;
@@ -85,6 +86,9 @@ function ExtraSearchLinks({ query, existingPlatforms }: { query: string; existin
 export function TrackRow({ track, onPlayPreview }: TrackRowProps) {
   const [expanded, setExpanded] = useState(false);
   const { input, results, bestMatch, status } = track;
+  const { isInWishlist, addToWishlist, removeFromWishlist, items } = useWishlist();
+  const inWishlist = isInWishlist(input.id);
+  const wishlistItem = items.find((i) => i.track.id === input.id);
 
   const grouped = groupByPlatform(results);
   const autoCount = [...grouped.values()].filter((g) => !g[0].manualSearch).length;
@@ -93,9 +97,12 @@ export function TrackRow({ track, onPlayPreview }: TrackRowProps) {
   return (
     <div className="border-b border-border last:border-b-0">
       {/* Summary row */}
-      <button
+      <div
+        role="button"
+        tabIndex={0}
         onClick={() => setExpanded(!expanded)}
-        className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-bg-tertiary transition-colors"
+        onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') setExpanded(!expanded); }}
+        className="flex w-full items-center justify-between px-4 py-3 text-left hover:bg-bg-tertiary transition-colors cursor-pointer"
       >
         <div className="flex items-center gap-3">
           {/* Artwork or placeholder */}
@@ -155,6 +162,24 @@ export function TrackRow({ track, onPlayPreview }: TrackRowProps) {
             <span className="h-2.5 w-2.5 rounded-full bg-text-tertiary" />
           )}
 
+          {/* Wishlist heart */}
+          {status === 'done' && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                if (inWishlist && wishlistItem) {
+                  removeFromWishlist(wishlistItem.id);
+                } else {
+                  addToWishlist(input);
+                }
+              }}
+              className={`transition-colors ${inWishlist ? 'text-status-error' : 'text-text-tertiary hover:text-status-error'}`}
+              title={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+            >
+              <Heart size={14} strokeWidth={1.5} fill={inWishlist ? 'currentColor' : 'none'} />
+            </button>
+          )}
+
           {/* Expand icon */}
           {results.length > 0 && (
             expanded
@@ -162,7 +187,7 @@ export function TrackRow({ track, onPlayPreview }: TrackRowProps) {
               : <ChevronDown size={14} strokeWidth={1.5} className="text-text-tertiary" />
           )}
         </div>
-      </button>
+      </div>
 
       {/* Expanded detail — grouped by platform */}
       {expanded && results.length > 0 && (
