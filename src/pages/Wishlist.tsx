@@ -1,7 +1,11 @@
 import { useState } from 'react';
-import { Heart, Trash2, Music, FolderPlus, Folder, X, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Heart, Trash2, Music, FolderPlus, Folder, X, Search, Play } from 'lucide-react';
 import { useWishlist } from '../hooks/useWishlist.ts';
-import { Button } from '../components/ui/Button.tsx';
+import { useSearch } from '../hooks/useSearch.ts';
+import { usePlaylistStore } from '../stores/playlistStore.ts';
+import { usePlayerStore } from '../stores/playerStore.ts';
+import { EMBEDDABLE_PLATFORMS } from '../services/player/embedBuilder.ts';
 
 export function Wishlist() {
   const {
@@ -20,6 +24,24 @@ export function Wishlist() {
   const [showNewFolder, setShowNewFolder] = useState(false);
   const [editingFolder, setEditingFolder] = useState<string | null>(null);
   const [editName, setEditName] = useState('');
+  const navigate = useNavigate();
+  const { importAndSearch } = useSearch();
+  const { setCurrentPlaylist, setSearchStatus, setError } = usePlaylistStore();
+  const { play } = usePlayerStore();
+
+  function handleSearch(artist: string, title: string) {
+    const query = `${artist} - ${title}`;
+    setCurrentPlaylist(null);
+    setSearchStatus('idle');
+    setError(null);
+    importAndSearch(query).catch(() => {});
+    const unsub = usePlaylistStore.subscribe((state) => {
+      if (state.currentPlaylist && state.searchStatus !== 'idle') {
+        unsub();
+        navigate('/results');
+      }
+    });
+  }
 
   if (loading) {
     return (
@@ -195,6 +217,16 @@ export function Wishlist() {
                 </div>
 
                 <div className="flex items-center gap-2">
+                  {/* Search this track */}
+                  <button
+                    onClick={() => handleSearch(item.track.artist, item.track.title)}
+                    className="flex items-center gap-1 rounded-sm border border-accent/40 bg-accent/10 px-2 py-1 text-xs font-medium text-accent hover:bg-accent/20 transition-colors"
+                    title="Search this track across platforms"
+                  >
+                    <Search size={12} strokeWidth={1.5} />
+                    <span className="hidden sm:inline">Search</span>
+                  </button>
+
                   {/* Move to folder dropdown */}
                   {folders.length > 0 && (
                     <select

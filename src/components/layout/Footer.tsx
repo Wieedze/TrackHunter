@@ -5,7 +5,7 @@ export function Footer() {
     <footer className="border-t border-border bg-bg-secondary py-4">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4">
         <span className="font-mono text-xs text-text-tertiary">
-          TrackHunter v0.1.0
+          TrackHunter v1.0.0
         </span>
         <nav className="flex items-center gap-4">
           <Link to="/about" className="text-xs text-text-tertiary hover:text-text-secondary transition-colors no-underline">
