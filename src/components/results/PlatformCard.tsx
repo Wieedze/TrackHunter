@@ -15,7 +15,6 @@ const PLATFORM_LABELS: Record<string, string> = {
   [Platform.DISCOGS]: 'Discogs',
   [Platform.MUSICBRAINZ]: 'MusicBrainz',
   [Platform.YOUTUBE]: 'YouTube',
-  [Platform.DEEZER]: 'Deezer',
   [Platform.SOUNDCLOUD]: 'SoundCloud',
 };
 
@@ -26,7 +25,6 @@ const PLATFORM_COLORS: Record<string, string> = {
   [Platform.DISCOGS]: 'bg-bg-tertiary text-text-secondary',
   [Platform.MUSICBRAINZ]: 'bg-platform-musicbrainz/15 text-platform-musicbrainz',
   [Platform.YOUTUBE]: 'bg-platform-youtube/15 text-platform-youtube',
-  [Platform.DEEZER]: 'bg-platform-deezer/15 text-platform-deezer',
   [Platform.SOUNDCLOUD]: 'bg-platform-soundcloud/15 text-platform-soundcloud',
 };
 

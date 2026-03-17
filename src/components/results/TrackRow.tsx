@@ -4,6 +4,7 @@ import type { TrackResult } from '../../types/track.ts';
 import type { PlatformResult } from '../../types/platform.ts';
 import { Platform } from '../../types/platform.ts';
 import { PlatformGroup } from './PlatformGroup.tsx';
+import { Recommendations } from './Recommendations.tsx';
 import { useWishlist } from '../../hooks/useWishlist.ts';
 
 interface TrackRowProps {
@@ -56,7 +57,6 @@ const PLATFORM_DOT_COLORS: Record<string, string> = {
   [Platform.DISCOGS]: 'bg-[#999]',
   [Platform.MUSICBRAINZ]: 'bg-platform-musicbrainz',
   [Platform.YOUTUBE]: 'bg-platform-youtube',
-  [Platform.DEEZER]: 'bg-platform-deezer',
   [Platform.SOUNDCLOUD]: 'bg-platform-soundcloud',
 };
 
@@ -191,7 +191,7 @@ export function TrackRow({ track, onPlayPreview }: TrackRowProps) {
 
       {/* Expanded detail — grouped by platform */}
       {expanded && results.length > 0 && (
-        <div className="flex flex-col gap-3 bg-bg-primary px-4 pb-4">
+        <div className="flex flex-col gap-3 bg-bg-primary px-4 pt-2 pb-4">
           {[...grouped.entries()]
             .sort(([, a], [, b]) => {
               // Manual search links go last
@@ -218,6 +218,9 @@ export function TrackRow({ track, onPlayPreview }: TrackRowProps) {
             query={`${input.artist} ${input.title}`}
             existingPlatforms={new Set(grouped.keys())}
           />
+
+          {/* Recommendations */}
+          <Recommendations track={input} />
         </div>
       )}
     </div>

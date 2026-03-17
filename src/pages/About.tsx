@@ -144,9 +144,6 @@ export function About() {
           <span className="rounded-sm border border-platform-soundcloud/30 bg-platform-soundcloud/10 px-3 py-1.5 text-xs text-platform-soundcloud">
             SoundCloud sets
           </span>
-          <span className="rounded-sm border border-platform-deezer/30 bg-platform-deezer/10 px-3 py-1.5 text-xs text-platform-deezer">
-            Deezer playlists
-          </span>
           <span className="rounded-sm border border-border bg-bg-secondary px-3 py-1.5 text-xs text-text-secondary">
             Manual text input
           </span>

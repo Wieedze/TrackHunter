@@ -1,6 +1,6 @@
 import { get, set, del, keys } from 'idb-keyval';
 import { STORAGE_KEYS } from '../../types/storage.ts';
-import type { Playlist, WishlistItem } from '../../types/track.ts';
+import type { Playlist, WishlistItem, WishlistFolder } from '../../types/track.ts';
 import type { OAuthToken, UserSettings, SearchHistoryItem } from '../../types/storage.ts';
 import type { OAuthPlatform } from '../../types/platform.ts';
 
@@ -67,6 +67,17 @@ export class LocalStore {
 
   static saveSettings(settings: UserSettings): void {
     localStorage.setItem(STORAGE_KEYS.SETTINGS, JSON.stringify(settings));
+  }
+
+  // ── Wishlist Folders ─────────────────────────────────
+
+  static getFolders(): WishlistFolder[] {
+    const raw = localStorage.getItem(STORAGE_KEYS.WISHLIST_FOLDERS);
+    return raw ? JSON.parse(raw) as WishlistFolder[] : [];
+  }
+
+  static saveFolders(folders: WishlistFolder[]): void {
+    localStorage.setItem(STORAGE_KEYS.WISHLIST_FOLDERS, JSON.stringify(folders));
   }
 
   // ── Search History ───────────────────────────────────

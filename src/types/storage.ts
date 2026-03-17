@@ -41,4 +41,5 @@ export const STORAGE_KEYS = {
   SETTINGS: 'th_settings',
   CACHE_PREFIX: 'th_cache_',
   HISTORY: 'th_history',
+  WISHLIST_FOLDERS: 'th_wishlist_folders',
 } as const;

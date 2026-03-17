@@ -5,7 +5,6 @@ import { Platform } from '../types/platform.ts';
 /** Platforms that have a search provider (API or manual link). */
 const SEARCH_PLATFORMS: { value: Platform; label: string }[] = [
   { value: Platform.BANDCAMP, label: 'Bandcamp' },
-  { value: Platform.DEEZER, label: 'Deezer' },
   { value: Platform.MUSICBRAINZ, label: 'MusicBrainz' },
   { value: Platform.DISCOGS, label: 'Discogs' },
   { value: Platform.BEATPORT, label: 'Beatport' },

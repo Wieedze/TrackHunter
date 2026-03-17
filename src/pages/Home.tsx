@@ -36,7 +36,6 @@ export function Home() {
           : 'YouTube playlist detected — set VITE_YOUTUBE_API_KEY in .env',
         youtube_mix: null,
         soundcloud_set: 'SoundCloud set detected — ready to import',
-        deezer_playlist: 'Deezer playlist detected',
         unknown_link: 'Link detected',
       }[inputType.type]
     : null;

@@ -9,7 +9,6 @@ const PLATFORM_LABELS: Record<string, string> = {
   discogs: 'Discogs',
   musicbrainz: 'MusicBrainz',
   youtube: 'YouTube',
-  deezer: 'Deezer',
   soundcloud: 'SoundCloud',
 };
 

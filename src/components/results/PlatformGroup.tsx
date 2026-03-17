@@ -16,7 +16,6 @@ const PLATFORM_LABELS: Record<string, string> = {
   [Platform.DISCOGS]: 'Discogs',
   [Platform.MUSICBRAINZ]: 'MusicBrainz',
   [Platform.YOUTUBE]: 'YouTube',
-  [Platform.DEEZER]: 'Deezer',
   [Platform.SOUNDCLOUD]: 'SoundCloud',
 };
 
@@ -27,7 +26,6 @@ const PLATFORM_COLORS: Record<string, string> = {
   [Platform.DISCOGS]: 'border-border bg-bg-secondary',
   [Platform.MUSICBRAINZ]: 'border-platform-musicbrainz/40 bg-platform-musicbrainz/5',
   [Platform.YOUTUBE]: 'border-platform-youtube/40 bg-platform-youtube/5',
-  [Platform.DEEZER]: 'border-platform-deezer/40 bg-platform-deezer/5',
   [Platform.SOUNDCLOUD]: 'border-platform-soundcloud/40 bg-platform-soundcloud/5',
 };
 
@@ -38,7 +36,6 @@ const BADGE_COLORS: Record<string, string> = {
   [Platform.DISCOGS]: 'bg-bg-tertiary text-text-secondary',
   [Platform.MUSICBRAINZ]: 'bg-platform-musicbrainz/15 text-platform-musicbrainz',
   [Platform.YOUTUBE]: 'bg-platform-youtube/15 text-platform-youtube',
-  [Platform.DEEZER]: 'bg-platform-deezer/15 text-platform-deezer',
   [Platform.SOUNDCLOUD]: 'bg-platform-soundcloud/15 text-platform-soundcloud',
 };
 

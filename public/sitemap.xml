@@ -26,6 +26,11 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://track-hunter.com/stats</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.5</priority>
+  </url>
+  <url>
     <loc>https://track-hunter.com/blog</loc>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>

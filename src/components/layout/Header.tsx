@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
-import { Search, Heart, Settings, Info, BookOpen, FileText, Sun, Moon } from 'lucide-react';
+import { Search, Heart, Settings, Info, BookOpen, FileText, BarChart3, Sun, Moon } from 'lucide-react';
 import { useThemeStore } from '../../stores/themeStore.ts';
 
 const NAV_ITEMS = [
@@ -8,6 +8,7 @@ const NAV_ITEMS = [
   { path: '/blog', label: 'Blog', icon: FileText },
   { path: '/about', label: 'About', icon: Info },
   { path: '/wishlist', label: 'Wishlist', icon: Heart },
+  { path: '/stats', label: 'Stats', icon: BarChart3 },
   { path: '/settings', label: 'Settings', icon: Settings },
 ] as const;
 
