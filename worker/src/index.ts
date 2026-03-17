@@ -96,6 +96,20 @@ export default {
         return json({ platform: 'spotify', albumId, results });
       }
 
+      // Resolve Bandcamp track page → numeric track ID for embed player
+      if (path === '/resolve/bandcamp') {
+        const trackUrl = url.searchParams.get('url');
+        if (!trackUrl) return json({ error: 'Missing ?url= parameter' }, 400);
+        const res = await fetch(trackUrl, {
+          headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' },
+        });
+        if (!res.ok) return json({ error: 'Failed to fetch Bandcamp page' }, 502);
+        const html = await res.text();
+        const trackIdMatch = html.match(/\/track=(\d+)/) || html.match(/data-tralbum-id="(\d+)"/);
+        if (!trackIdMatch) return json({ error: 'Track ID not found on page' }, 404);
+        return json({ trackId: trackIdMatch[1] });
+      }
+
       return json({ error: 'Not found' }, 404);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Internal error';

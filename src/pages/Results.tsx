@@ -221,7 +221,7 @@ export function Results() {
             <TrackRow
               key={track.input.id}
               track={track}
-              onPlayPreview={(trackId, previewUrl, platform) => play(trackId, previewUrl, platform)}
+              onPlay={(url, platform, title) => play(currentPlaylist.id, url, platform, title)}
             />
           ))
         )}

@@ -9,7 +9,7 @@ import { useWishlist } from '../../hooks/useWishlist.ts';
 
 interface TrackRowProps {
   track: TrackResult;
-  onPlayPreview?: (trackId: string, previewUrl: string, platform: string) => void;
+  onPlay?: (url: string, platform: string, title: string) => void;
 }
 
 /** Group results by platform, sorted by best confidence per group. */
@@ -83,7 +83,7 @@ function ExtraSearchLinks({ query, existingPlatforms }: { query: string; existin
   );
 }
 
-export function TrackRow({ track, onPlayPreview }: TrackRowProps) {
+export function TrackRow({ track, onPlay }: TrackRowProps) {
   const [expanded, setExpanded] = useState(false);
   const { input, results, bestMatch, status } = track;
   const { isInWishlist, addToWishlist, removeFromWishlist, items } = useWishlist();
@@ -205,11 +205,7 @@ export function TrackRow({ track, onPlayPreview }: TrackRowProps) {
                 key={platform}
                 platform={platform}
                 results={platformResults}
-                onPlayPreview={
-                  onPlayPreview
-                    ? (url) => onPlayPreview(input.id, url, platform)
-                    : undefined
-                }
+                onPlay={onPlay}
               />
             ))}
 

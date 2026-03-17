@@ -5,12 +5,12 @@ import { MiniPlayer } from '../player/MiniPlayer.tsx';
 import { usePlayerStore } from '../../stores/playerStore.ts';
 
 export function Layout() {
-  const hasTrack = usePlayerStore((s) => !!s.currentTrackId);
+  const hasTrack = usePlayerStore((s) => s.isPlaying);
 
   return (
     <div className="flex min-h-screen flex-col bg-bg-primary">
       <Header />
-      <main className={`mx-auto w-full max-w-7xl flex-1 px-4 py-6 ${hasTrack ? 'pb-20' : ''}`}>
+      <main className={`mx-auto w-full max-w-7xl flex-1 px-4 py-6 ${hasTrack ? 'pb-56' : ''}`}>
         <Outlet />
       </main>
       <Footer />

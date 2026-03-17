@@ -2,11 +2,12 @@ import { useState } from 'react';
 import { ExternalLink, Play, ChevronDown, Search } from 'lucide-react';
 import { Platform } from '../../types/platform.ts';
 import type { PlatformResult } from '../../types/platform.ts';
+import { EMBEDDABLE_PLATFORMS } from '../../services/player/embedBuilder.ts';
 
 interface PlatformGroupProps {
   platform: string;
   results: PlatformResult[];
-  onPlayPreview?: (previewUrl: string) => void;
+  onPlay?: (url: string, platform: string, title: string) => void;
 }
 
 const PLATFORM_LABELS: Record<string, string> = {
@@ -39,11 +40,12 @@ const BADGE_COLORS: Record<string, string> = {
   [Platform.SOUNDCLOUD]: 'bg-platform-soundcloud/15 text-platform-soundcloud',
 };
 
-export function PlatformGroup({ platform, results, onPlayPreview }: PlatformGroupProps) {
+export function PlatformGroup({ platform, results, onPlay }: PlatformGroupProps) {
   const [showAll, setShowAll] = useState(false);
   const label = PLATFORM_LABELS[platform] ?? platform;
   const colorClass = PLATFORM_COLORS[platform] ?? 'border-border bg-bg-secondary';
   const badgeClass = BADGE_COLORS[platform] ?? 'bg-bg-tertiary text-text-secondary';
+  const canEmbed = EMBEDDABLE_PLATFORMS.has(platform);
 
   const best = results[0]; // Already sorted by confidence desc
   const others = results.slice(1);
@@ -104,13 +106,15 @@ export function PlatformGroup({ platform, results, onPlayPreview }: PlatformGrou
             <span className="font-mono text-xs text-text-tertiary">{best.format}</span>
           )}
 
-          {/* Preview */}
-          {best.previewUrl && onPlayPreview && (
+          {/* Play embed */}
+          {canEmbed && onPlay && (
             <button
-              onClick={() => onPlayPreview(best.previewUrl!)}
-              className="text-text-secondary hover:text-accent transition-colors"
+              onClick={() => onPlay(best.url, platform, `${best.artist} — ${best.title}`)}
+              className="flex items-center gap-1 rounded-sm border border-accent/40 bg-accent/10 px-2 py-1 text-xs font-medium text-accent hover:bg-accent/20 transition-colors"
+              title={`Play on ${label}`}
             >
-              <Play size={14} strokeWidth={1.5} />
+              <Play size={12} strokeWidth={2} fill="currentColor" />
+              Play
             </button>
           )}
 
@@ -161,12 +165,14 @@ export function PlatformGroup({ platform, results, onPlayPreview }: PlatformGrou
                     {result.currency ?? ''}{result.price.toFixed(2)}
                   </span>
                 )}
-                {result.previewUrl && onPlayPreview && (
+                {canEmbed && onPlay && (
                   <button
-                    onClick={() => onPlayPreview(result.previewUrl!)}
-                    className="text-text-tertiary hover:text-accent transition-colors"
+                    onClick={() => onPlay(result.url, platform, `${result.artist} — ${result.title}`)}
+                    className="flex items-center gap-1 rounded-sm border border-accent/40 bg-accent/10 px-1.5 py-0.5 text-xs text-accent hover:bg-accent/20 transition-colors"
+                    title={`Play on ${label}`}
                   >
-                    <Play size={12} strokeWidth={1.5} />
+                    <Play size={10} strokeWidth={2} fill="currentColor" />
+                    Play
                   </button>
                 )}
                 <a
