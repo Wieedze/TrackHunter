@@ -99,11 +99,11 @@ export default {
 
       // Audio features (BPM + Key) via GetSongBPM
       if (path === '/api/audio-features') {
-        const title = url.searchParams.get('title') || query;
-        const artist = url.searchParams.get('artist') || '';
-        if (!title) return json({ error: 'Missing ?title= or ?q= parameter' }, 400);
-        if (!env.GETSONGBPM_API_KEY) return json({ error: 'GetSongBPM API key not configured' }, 500);
-        const features = await fetchAudioFeatures(title, artist, env.GETSONGBPM_API_KEY);
+        if (!query) return json({ error: 'Missing ?q= parameter' }, 400);
+        if (!env.GETSONGBPM_API_KEY) {
+          return json({ error: 'GetSongBPM API key not configured' }, 500);
+        }
+        const features = await fetchAudioFeatures(query, env.GETSONGBPM_API_KEY);
         if (!features) return json({ error: 'Track not found or no audio features' }, 404);
         return json(features);
       }

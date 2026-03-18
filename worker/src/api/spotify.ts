@@ -166,63 +166,63 @@ export async function fetchSpotifyTrack(
 }
 
 /**
- * Fetch BPM + Key via Tunebat search API (proxied through worker to bypass CORS/Cloudflare).
- * Endpoint: https://api.tunebat.com/api/tracks/search?term=QUERY
+ * Fetch BPM + Key via GetSongBPM API.
+ * Uses search endpoint which already returns tempo + key_of directly.
+ * Matches artist name to avoid false positives.
  */
 export async function fetchAudioFeatures(
-  query: string,
+  title: string,
+  artist: string,
+  apiKey: string,
 ): Promise<{ bpm: number; key: string } | null> {
-  console.log('[AudioFeatures] Searching Tunebat for:', query);
+  console.log('[AudioFeatures] Searching GetSongBPM for:', title, '(artist:', artist, ')');
 
-  const res = await fetch(
-    `https://api.tunebat.com/api/tracks/search?term=${encodeURIComponent(query)}`,
+  // Search by title only — API returns better results without artist in lookup
+  // We match by artist name from the results afterwards
+  const searchRes = await fetch(
+    `https://api.getsongbpm.com/search/?api_key=${apiKey}&type=song&lookup=${encodeURIComponent(title)}`,
     {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-        'Accept': 'application/json',
+        'Accept': 'application/json, text/plain, */*',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Referer': 'https://getsongbpm.com/',
       },
     },
   );
 
-  console.log('[AudioFeatures] Tunebat status:', res.status);
-
-  if (!res.ok) {
-    console.log('[AudioFeatures] Tunebat request failed');
+  console.log('[AudioFeatures] Search status:', searchRes.status);
+  if (!searchRes.ok) {
+    const body = await searchRes.text().catch(() => '');
+    console.error('[AudioFeatures] Search failed:', searchRes.status, body);
     return null;
   }
-
-  const text = await res.text();
-  console.log('[AudioFeatures] Response:', text.slice(0, 500));
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  let data: any;
-  try {
-    data = JSON.parse(text.normalize('NFD').replace(/[\u0300-\u036f]/g, ''));
-  } catch {
-    console.log('[AudioFeatures] Failed to parse JSON');
-    return null;
-  }
-
-  const items = data?.data?.items;
-  if (!items || items.length === 0) {
+  const searchData = (await searchRes.json()) as any;
+  const results = searchData?.search;
+  if (!results || !Array.isArray(results) || results.length === 0) {
     console.log('[AudioFeatures] No results');
     return null;
   }
 
-  // Tunebat response fields: b = bpm, k = key, n = name, as = artists
-  const track = items[0];
-  console.log('[AudioFeatures] First result keys:', Object.keys(track));
-  console.log('[AudioFeatures] First result:', JSON.stringify(track).slice(0, 300));
+  // Try to match by artist name
+  const queryLower = `${artist} ${title}`.toLowerCase();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const bestMatch = results.find((r: any) => {
+    const artistName = (r.artist?.name ?? '').toLowerCase();
+    return queryLower.includes(artistName) || artistName.includes(queryLower.split(' ')[0]);
+  }) ?? results[0];
 
-  const bpm = track.b ?? track.bpm ?? track.tempo;
-  const key = track.k ?? track.key;
+  const bpm = parseInt(bestMatch.tempo, 10);
+  const key = bestMatch.key_of ?? bestMatch.open_key ?? '?';
 
-  if (bpm) {
-    console.log('[AudioFeatures] Found — BPM:', bpm, 'Key:', key);
-    return { bpm: Math.round(bpm), key: key ?? '?' };
+  console.log('[AudioFeatures] Best match:', bestMatch.artist?.name, '-', bestMatch.title, '→ BPM:', bpm, 'Key:', key);
+
+  if (bpm && !isNaN(bpm) && key) {
+    return { bpm, key };
   }
 
-  console.log('[AudioFeatures] No BPM in result');
   return null;
 }
 
