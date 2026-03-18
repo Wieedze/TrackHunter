@@ -12,7 +12,7 @@
 import { scrapeBandcamp } from './scrapers/bandcamp.ts';
 import { scrapeBeatport } from './scrapers/beatport.ts';
 import { scrapeSoundCloudSet } from './scrapers/soundcloud.ts';
-import { fetchSpotifyPlaylist, fetchSpotifyTrack, fetchSpotifyAlbum } from './api/spotify.ts';
+import { fetchSpotifyPlaylist, fetchSpotifyTrack, fetchSpotifyAlbum, fetchAudioFeatures } from './api/spotify.ts';
 
 export interface Env {
   SPOTIFY_CLIENT_ID?: string;
@@ -94,6 +94,14 @@ export default {
         }
         const results = await fetchSpotifyAlbum(albumId, env.SPOTIFY_CLIENT_ID, env.SPOTIFY_CLIENT_SECRET);
         return json({ platform: 'spotify', albumId, results });
+      }
+
+      // Audio features (BPM + Key) via Tunebat
+      if (path === '/api/audio-features') {
+        if (!query) return json({ error: 'Missing ?q= parameter' }, 400);
+        const features = await fetchAudioFeatures(query);
+        if (!features) return json({ error: 'Track not found or no audio features' }, 404);
+        return json(features);
       }
 
       // Resolve Bandcamp track page → numeric track ID for embed player

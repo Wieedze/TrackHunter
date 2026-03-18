@@ -166,6 +166,67 @@ export async function fetchSpotifyTrack(
 }
 
 /**
+ * Fetch BPM + Key via Tunebat search API (proxied through worker to bypass CORS/Cloudflare).
+ * Endpoint: https://api.tunebat.com/api/tracks/search?term=QUERY
+ */
+export async function fetchAudioFeatures(
+  query: string,
+): Promise<{ bpm: number; key: string } | null> {
+  console.log('[AudioFeatures] Searching Tunebat for:', query);
+
+  const res = await fetch(
+    `https://api.tunebat.com/api/tracks/search?term=${encodeURIComponent(query)}`,
+    {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'application/json',
+      },
+    },
+  );
+
+  console.log('[AudioFeatures] Tunebat status:', res.status);
+
+  if (!res.ok) {
+    console.log('[AudioFeatures] Tunebat request failed');
+    return null;
+  }
+
+  const text = await res.text();
+  console.log('[AudioFeatures] Response:', text.slice(0, 500));
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let data: any;
+  try {
+    data = JSON.parse(text.normalize('NFD').replace(/[\u0300-\u036f]/g, ''));
+  } catch {
+    console.log('[AudioFeatures] Failed to parse JSON');
+    return null;
+  }
+
+  const items = data?.data?.items;
+  if (!items || items.length === 0) {
+    console.log('[AudioFeatures] No results');
+    return null;
+  }
+
+  // Tunebat response fields: b = bpm, k = key, n = name, as = artists
+  const track = items[0];
+  console.log('[AudioFeatures] First result keys:', Object.keys(track));
+  console.log('[AudioFeatures] First result:', JSON.stringify(track).slice(0, 300));
+
+  const bpm = track.b ?? track.bpm ?? track.tempo;
+  const key = track.k ?? track.key;
+
+  if (bpm) {
+    console.log('[AudioFeatures] Found — BPM:', bpm, 'Key:', key);
+    return { bpm: Math.round(bpm), key: key ?? '?' };
+  }
+
+  console.log('[AudioFeatures] No BPM in result');
+  return null;
+}
+
+/**
  * Fetch all tracks from a Spotify album by ID.
  */
 export async function fetchSpotifyAlbum(

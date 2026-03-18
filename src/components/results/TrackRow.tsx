@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ChevronDown, ChevronUp, Music, Loader2, Search, Heart } from 'lucide-react';
+import { fetchAudioFeatures, type AudioFeatures } from '../../services/audioFeatures.ts';
 import type { TrackResult } from '../../types/track.ts';
 import type { PlatformResult } from '../../types/platform.ts';
 import { Platform } from '../../types/platform.ts';
@@ -90,6 +91,14 @@ export function TrackRow({ track, onPlay }: TrackRowProps) {
   const inWishlist = isInWishlist(input.id);
   const wishlistItem = items.find((i) => i.track.id === input.id);
 
+  const [audioFeatures, setAudioFeatures] = useState<AudioFeatures | null>(null);
+
+  useEffect(() => {
+    if (status === 'done') {
+      fetchAudioFeatures(input.artist, input.title).then(setAudioFeatures);
+    }
+  }, [status, input.artist, input.title]);
+
   const grouped = groupByPlatform(results);
   const autoCount = [...grouped.values()].filter((g) => !g[0].manualSearch).length;
   const platformCount = autoCount;
@@ -120,9 +129,16 @@ export function TrackRow({ track, onPlay }: TrackRowProps) {
 
           {/* Track info */}
           <div>
-            <p className="text-sm font-medium text-text-primary">
-              {input.artist} — {input.title}
-            </p>
+            <div className="flex items-center gap-2">
+              <p className="text-sm font-medium text-text-primary">
+                {input.artist} — {input.title}
+              </p>
+              {audioFeatures && (
+                <span className="flex items-center gap-1.5 rounded-sm bg-accent/10 px-2 py-0.5 font-mono text-xs text-accent">
+                  {audioFeatures.bpm} BPM · {audioFeatures.key}
+                </span>
+              )}
+            </div>
             {input.label && (
               <p className="text-xs text-text-tertiary">{input.label}</p>
             )}
