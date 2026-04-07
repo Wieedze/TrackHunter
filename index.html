@@ -4,6 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+      <!-- GitHub Pages SPA routing fix -->
+      <script>
+            (function(l) {
+                    if (l.search[1] === '/') {
+                              var decoded = l.search.slice(1).split('&').map(function(s) {
+                                          return s.replace(/~and~/g, '&');
+                              });
+                              window.history.replaceState(null, null,
+                                                                    l.pathname.slice(0, -1) + decoded[0] +
+                                                                    (decoded[1] ? '?' + decoded[1] : '') + l.hash
+                                                                  );
+                    }
+            }(window.location));
+      </script>
+
     <!-- SEO -->
     <title>TrackHunter — Find & Buy Music Across All Platforms</title>
     <meta name="description" content="Paste a playlist from Spotify, YouTube or SoundCloud and instantly find every track on Bandcamp, Beatport, MusicBrainz and Discogs. Buy music from the platform you prefer." />
