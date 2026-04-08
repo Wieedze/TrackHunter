@@ -11,6 +11,7 @@ import { Blog } from './pages/Blog.tsx';
 import { ArticleLayout } from './pages/articles/ArticleLayout.tsx';
 import { Stats } from './pages/Stats.tsx';
 import { Privacy } from './pages/Privacy.tsx';
+import { Terms } from './pages/Terms.tsx';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -38,6 +39,7 @@ function App() {
             <Route path="/blog/:slug" element={<ArticleLayout />} />
             <Route path="/stats" element={<Stats />} />
             <Route path="/privacy" element={<Privacy />} />
+            <Route path="/terms" element={<Terms />} />
           </Route>
         </Routes>
       </BrowserRouter>

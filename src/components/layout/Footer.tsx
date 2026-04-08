@@ -17,12 +17,15 @@ export function Footer() {
           <Link to="/blog" className="text-xs text-text-tertiary hover:text-text-secondary transition-colors no-underline">
             Blog
           </Link>
+          <Link to="/privacy" className="text-xs text-text-tertiary hover:text-text-secondary transition-colors no-underline">
+            Privacy
+          </Link>
+          <Link to="/terms" className="text-xs text-text-tertiary hover:text-text-secondary transition-colors no-underline">
+            Terms
+          </Link>
           <a href="https://getsongbpm.com" target="_blank" rel="noopener noreferrer" className="text-xs text-text-tertiary hover:text-text-secondary transition-colors no-underline">
             BPM data by GetSongBPM
           </a>
-          <span className="text-xs text-text-tertiary">
-            Search. Compare. Collect.
-          </span>
         </nav>
       </div>
     </footer>
