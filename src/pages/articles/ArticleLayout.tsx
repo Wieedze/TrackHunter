@@ -4,11 +4,17 @@ import { ARTICLES } from './index.ts';
 import { SupportArtists2026 } from './SupportArtists2026.tsx';
 import { BestPlatforms } from './BestPlatforms.tsx';
 import { SpotifyToDJSet } from './SpotifyToDJSet.tsx';
+import { BpmKeyMixing } from './BpmKeyMixing.tsx';
+import { UndergroundLabels2026 } from './UndergroundLabels2026.tsx';
+import { BuildVinylCollection2026 } from './BuildVinylCollection2026.tsx';
 
 const ARTICLE_COMPONENTS: Record<string, React.FC> = {
   'how-to-support-artists-in-2026': SupportArtists2026,
   'best-platforms-to-buy-music-online': BestPlatforms,
   'spotify-playlist-to-dj-set': SpotifyToDJSet,
+  'bpm-key-guide-for-djs': BpmKeyMixing,
+  'underground-labels-to-follow-2026': UndergroundLabels2026,
+  'build-vinyl-collection-2026': BuildVinylCollection2026,
 };
 
 export function ArticleLayout() {
