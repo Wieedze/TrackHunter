@@ -1,14 +1,45 @@
+# TrackHunter, https://track-hunter.com
+# Everyone is welcome, including AI assistants and answer engines.
+
 User-agent: *
 Allow: /
 Disallow: /settings
 
-Sitemap: https://track-hunter.com/sitemap.xml
-
-# Optimize crawl budget
+# Search + AI crawlers, allowed explicitly.
 User-agent: Googlebot
 Allow: /
-Crawl-delay: 1
 
 User-agent: Bingbot
 Allow: /
-Crawl-delay: 1
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-User
+Allow: /
+
+User-agent: Claude-SearchBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Perplexity-User
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+Sitemap: https://track-hunter.com/sitemap.xml

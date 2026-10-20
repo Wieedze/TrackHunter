@@ -7,7 +7,10 @@ interface ThemeStore {
   setTheme: (theme: Theme) => void;
 }
 
+const isBrowser = typeof window !== 'undefined';
+
 function getInitialTheme(): Theme {
+  if (!isBrowser) return 'dark';
   const saved = localStorage.getItem('th_theme');
   if (saved === 'dark' || saved === 'light' || saved === 'system') return saved;
   return 'dark';
@@ -27,8 +30,8 @@ function applyTheme(theme: Theme) {
   }
 }
 
-// Apply on load
-applyTheme(getInitialTheme());
+// Apply on load (browser only — the pre-render runs in Node)
+if (isBrowser) applyTheme(getInitialTheme());
 
 export const useThemeStore = create<ThemeStore>((set) => ({
   theme: getInitialTheme(),

@@ -1,3 +1,4 @@
+import { useSyncExternalStore } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Search, Heart, Settings, Info, BookOpen, FileText, BarChart3, Sun, Moon } from 'lucide-react';
 import { useThemeStore } from '../../stores/themeStore.ts';
@@ -12,9 +13,15 @@ const NAV_ITEMS = [
   { path: '/settings', label: 'Settings', icon: Settings },
 ] as const;
 
+const noopSubscribe = () => () => {};
+
 export function Header() {
   const location = useLocation();
-  const { theme, setTheme } = useThemeStore();
+  const { theme: storedTheme, setTheme } = useThemeStore();
+  // Pre-rendered HTML is always dark: match it on the first client render to
+  // avoid a hydration mismatch, then switch to the saved theme.
+  const hydrated = useSyncExternalStore(noopSubscribe, () => true, () => false);
+  const theme = hydrated ? storedTheme : 'dark';
 
   return (
     <header className="border-b border-border bg-bg-secondary">

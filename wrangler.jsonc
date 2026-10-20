@@ -1,0 +1,17 @@
+// Static site Worker for track-hunter.com (docs/deploy.md).
+// Assets-only: serves the pre-rendered build in dist/ (pnpm build).
+// The API proxy is a separate Worker: worker/wrangler.toml (`trackhunter-proxy`).
+// The dashboard deploy command must stay plain (`npx wrangler deploy`) so this
+// file drives the deploy.
+{
+  "name": "trackhunter",
+  "compatibility_date": "2026-08-01",
+  "assets": {
+    "directory": "./dist",
+    // /blog → blog.html, /blog/<slug> → blog/<slug>.html, served with a 200.
+    "html_handling": "auto-trailing-slash",
+    // Unknown URLs → dist/404.html (app shell, noindex) with a real 404 status.
+    "not_found_handling": "404-page"
+  },
+  "observability": { "enabled": true }
+}

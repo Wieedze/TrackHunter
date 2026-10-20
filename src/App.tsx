@@ -1,4 +1,5 @@
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Layout } from './components/layout/Layout.tsx';
 import { Home } from './pages/Home.tsx';
@@ -23,27 +24,38 @@ const queryClient = new QueryClient({
   },
 });
 
+export function AppRoutes() {
+  return (
+    <Routes>
+      <Route element={<Layout />}>
+        <Route path="/" element={<Home />} />
+        <Route path="/results" element={<Results />} />
+        <Route path="/wishlist" element={<Wishlist />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/guide" element={<Guide />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/blog/:slug" element={<ArticleLayout />} />
+        <Route path="/stats" element={<Stats />} />
+        <Route path="/privacy" element={<Privacy />} />
+        <Route path="/terms" element={<Terms />} />
+      </Route>
+    </Routes>
+  );
+}
+
+/** Providers shared by the browser app and the pre-render (entry-server). */
+export function AppProviders({ children }: { children: ReactNode }) {
+  return <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>;
+}
+
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
+    <AppProviders>
       <BrowserRouter>
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<Home />} />
-            <Route path="/results" element={<Results />} />
-            <Route path="/wishlist" element={<Wishlist />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/guide" element={<Guide />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/blog/:slug" element={<ArticleLayout />} />
-            <Route path="/stats" element={<Stats />} />
-            <Route path="/privacy" element={<Privacy />} />
-            <Route path="/terms" element={<Terms />} />
-          </Route>
-        </Routes>
+        <AppRoutes />
       </BrowserRouter>
-    </QueryClientProvider>
+    </AppProviders>
   );
 }
 

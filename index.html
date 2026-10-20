@@ -4,68 +4,14 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-  <!-- GitHub Pages SPA routing fix -->
-  <script>
-    (function(l){if(l.search[1]==='/'){var d=l.search.slice(1).split('&').map(function(s){return s.replace(/~and~/g,'&');});window.history.replaceState(null,null,l.pathname.slice(0,-1)+d[0]+(d[1]?'?'+d[1]:'')+l.hash);};}(window.location));
-  </script>
-
-  <!-- SEO -->
-  <title>TrackHunter — Find & Buy Music Across All Platforms</title>
-  <meta name="description" content="Paste a playlist from Spotify, YouTube or SoundCloud and instantly find every track on Bandcamp, Beatport, MusicBrainz and Discogs. Buy music from the platform you prefer." />
-  <meta name="keywords" content="buy music, find tracks, Bandcamp, Beatport, Discogs, MusicBrainz, Spotify playlist, download music, DJ tools, music search engine" />
-  <link rel="canonical" href="https://track-hunter.com/" />
-  <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1" />
+  <!-- SEO: per-route title, description, canonical, Open Graph and JSON-LD
+       are injected here by scripts/prerender.mjs (data in src/seo.ts). -->
+  <!--seo-head-->
   <meta name="author" content="TrackHunter" />
   <meta name="theme-color" content="#0A0A0A" />
-  <link rel="alternate" hreflang="en" href="https://track-hunter.com/" />
-  <link rel="alternate" hreflang="x-default" href="https://track-hunter.com/" />
 
   <!-- Bing Webmaster Verification -->
   <meta name="msvalidate.01" content="269F64DC3F06A3243E37EA4801D6F90C" />
-
-  <!-- Open Graph -->
-  <meta property="og:type" content="website" />
-  <meta property="og:url" content="https://track-hunter.com/" />
-  <meta property="og:title" content="TrackHunter — Find & Buy Music Across All Platforms" />
-  <meta property="og:description" content="Paste a playlist and instantly find every track on Bandcamp, Beatport, MusicBrainz and Discogs." />
-  <meta property="og:image" content="https://track-hunter.com/og-image.svg" />
-  <meta property="og:site_name" content="TrackHunter" />
-
-  <!-- Twitter Card -->
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="TrackHunter — Find & Buy Music Across All Platforms" />
-  <meta name="twitter:description" content="Paste a playlist and instantly find every track on Bandcamp, Beatport, MusicBrainz and Discogs." />
-  <meta name="twitter:image" content="https://track-hunter.com/og-image.svg" />
-
-  <!-- Structured Data -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "WebApplication",
-    "name": "TrackHunter",
-    "url": "https://track-hunter.com",
-    "description": "Find and buy music across Bandcamp, Beatport, MusicBrainz and Discogs. Import playlists from Spotify, YouTube and SoundCloud.",
-    "applicationCategory": "MusicApplication",
-    "operatingSystem": "Web",
-    "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
-    "creator": { "@type": "Organization", "name": "TrackHunter" }
-  }
-  </script>
-
-  <!-- FAQ Structured Data -->
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    "mainEntity": [
-      { "@type": "Question", "name": "How do I find where to buy a specific song?", "acceptedAnswer": { "@type": "Answer", "text": "Paste the track name or a Spotify/YouTube/SoundCloud playlist link into TrackHunter. It will search Bandcamp, Beatport, MusicBrainz and Discogs." } },
-      { "@type": "Question", "name": "Can I import my Spotify playlist to find tracks on Bandcamp?", "acceptedAnswer": { "@type": "Answer", "text": "Yes! Just paste your Spotify playlist URL into TrackHunter." } },
-      { "@type": "Question", "name": "Is TrackHunter free to use?", "acceptedAnswer": { "@type": "Answer", "text": "Yes, TrackHunter is completely free." } },
-      { "@type": "Question", "name": "What music platforms does TrackHunter search?", "acceptedAnswer": { "@type": "Answer", "text": "TrackHunter searches Bandcamp, Beatport, MusicBrainz and Discogs." } },
-      { "@type": "Question", "name": "How can DJs find tracks from a set or mix?", "acceptedAnswer": { "@type": "Answer", "text": "Paste the tracklist into TrackHunter (Artist - Title format) and get purchase links instantly." } }
-    ]
-  }
-  </script>
 
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -133,14 +79,7 @@
     });
   </script>
 
-  <!-- SEO: noscript fallback for crawlers -->
-  <noscript>
-    <h1>TrackHunter — Find & Buy Music Across All Platforms</h1>
-    <p>Paste a playlist from Spotify, YouTube or SoundCloud and instantly find every track on Bandcamp, Beatport, MusicBrainz and Discogs.</p>
-    <p><a href="https://getsongbpm.com">BPM data by GetSongBPM</a></p>
-  </noscript>
-
-  <div id="root"></div>
+  <div id="root"><!--app-html--></div>
 
   <!-- Static backlink for GetSongBPM (required for API access) -->
   <footer style="text-align:center;padding:8px;font-size:11px;color:#666">
