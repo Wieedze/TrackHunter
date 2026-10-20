@@ -13,6 +13,8 @@ import { ArticleLayout } from './pages/articles/ArticleLayout.tsx';
 import { Stats } from './pages/Stats.tsx';
 import { Privacy } from './pages/Privacy.tsx';
 import { Terms } from './pages/Terms.tsx';
+import { LandingPage } from './pages/landing/LandingPage.tsx';
+import { LANDINGS } from './pages/landing/landings.ts';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,6 +41,9 @@ export function AppRoutes() {
         <Route path="/stats" element={<Stats />} />
         <Route path="/privacy" element={<Privacy />} />
         <Route path="/terms" element={<Terms />} />
+        {LANDINGS.map((l) => (
+          <Route key={l.slug} path={`/${l.slug}`} element={<LandingPage slug={l.slug} />} />
+        ))}
       </Route>
     </Routes>
   );

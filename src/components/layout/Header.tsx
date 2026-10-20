@@ -27,13 +27,13 @@ export function Header() {
     <header className="border-b border-border bg-bg-secondary">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2 font-display text-lg font-bold text-text-primary no-underline">
+        <Link to="/" className="flex shrink-0 items-center gap-2 font-display text-lg font-bold text-text-primary no-underline">
           <span className="text-accent">Track</span>
           <span>Hunter</span>
         </Link>
 
         {/* Navigation */}
-        <nav className="flex items-center gap-1">
+        <nav className="flex min-w-0 items-center gap-1 overflow-x-auto">
           {/* Theme toggle */}
           <button
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}

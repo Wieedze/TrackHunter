@@ -110,8 +110,9 @@ await writeFile(
 );
 
 // llms.txt — plain-text map of the site for AI assistants / answer engines.
-const articles = ROUTES.filter((r) => r.indexable && r.path.startsWith('/blog/'));
-const pagesList = ROUTES.filter((r) => r.indexable && !r.path.startsWith('/blog/') && r.path !== '/');
+const articles = ROUTES.filter((r) => r.indexable && r.group === 'article');
+const tools = ROUTES.filter((r) => r.indexable && r.group === 'tool');
+const pagesList = ROUTES.filter((r) => r.indexable && !r.group && r.path !== '/');
 const llms = `# ${SITE_NAME}
 
 > ${SITE_NAME} (${SITE_URL}) is a free music search engine for DJs, collectors and music lovers. Paste a playlist from Spotify, YouTube or SoundCloud (or a plain "Artist - Title" tracklist) and it finds where every track can be bought on Bandcamp, Beatport, Discogs and MusicBrainz. No account required.
@@ -122,6 +123,10 @@ const llms = `# ${SITE_NAME}
 - Searches Bandcamp, Beatport, Discogs and MusicBrainz in parallel and ranks matches with a confidence score.
 - Shows purchase links and previews so users can buy music directly from the platform they prefer (supporting artists rather than streaming).
 - Keeps a local wishlist and search history in the browser; nothing is stored on a server.
+
+## Tools
+
+${tools.map((r) => `- [${r.title.replace(/ \| TrackHunter$/, '')}](${SITE_URL}${r.path}): ${r.description}`).join('\n')}
 
 ## Pages
 

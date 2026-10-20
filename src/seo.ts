@@ -1,4 +1,6 @@
 import { ARTICLES } from './pages/articles/index.ts';
+import { LANDINGS } from './pages/landing/landings.ts';
+import { HOME_FAQ } from './content/homeFaq.ts';
 
 /**
  * Per-route SEO metadata. Shared by the client (document.title on navigation)
@@ -19,6 +21,8 @@ export interface RouteMeta {
   changefreq?: 'weekly' | 'monthly' | 'yearly';
   priority?: number;
   lastmod?: string;
+  /** Section in llms.txt. */
+  group?: 'page' | 'tool' | 'article';
   jsonLd?: object[];
 }
 
@@ -26,13 +30,6 @@ const HOME_TITLE = 'TrackHunter — Find & Buy Music Across All Platforms';
 const HOME_DESCRIPTION =
   'Paste a playlist from Spotify, YouTube or SoundCloud and instantly find every track on Bandcamp, Beatport, MusicBrainz and Discogs. Buy music from the platform you prefer.';
 
-const FAQ = [
-  ['How do I find where to buy a specific song?', 'Paste the track name or a Spotify/YouTube/SoundCloud playlist link into TrackHunter. It searches Bandcamp, Beatport, MusicBrainz and Discogs at once and shows where each track can be bought.'],
-  ['Can I import my Spotify playlist to find tracks on Bandcamp?', 'Yes. Paste a public Spotify playlist or album URL into TrackHunter and every track is searched on Bandcamp, Beatport, Discogs and MusicBrainz.'],
-  ['Is TrackHunter free to use?', 'Yes, TrackHunter is completely free and requires no account.'],
-  ['What music platforms does TrackHunter search?', 'TrackHunter searches Bandcamp, Beatport, MusicBrainz and Discogs.'],
-  ['How can DJs find tracks from a set or mix?', 'Paste the tracklist into TrackHunter (one "Artist - Title" per line) and get purchase links for every track instantly.'],
-];
 
 const STATIC_PAGES: RouteMeta[] = [
   {
@@ -57,7 +54,7 @@ const STATIC_PAGES: RouteMeta[] = [
       {
         '@context': 'https://schema.org',
         '@type': 'FAQPage',
-        mainEntity: FAQ.map(([q, a]) => ({
+        mainEntity: HOME_FAQ.map(([q, a]) => ({
           '@type': 'Question',
           name: q,
           acceptedAnswer: { '@type': 'Answer', text: a },
@@ -114,6 +111,7 @@ const STATIC_PAGES: RouteMeta[] = [
 
 const ARTICLE_PAGES: RouteMeta[] = ARTICLES.map((a) => ({
   path: `/blog/${a.slug}`,
+  group: 'article',
   title: `${a.title} — TrackHunter`,
   description: a.description,
   indexable: true,
@@ -147,7 +145,46 @@ const ARTICLE_PAGES: RouteMeta[] = ARTICLES.map((a) => ({
   ],
 }));
 
-export const ROUTES: RouteMeta[] = [...STATIC_PAGES, ...ARTICLE_PAGES];
+const faqJsonLd = (faq: [string, string][]) => ({
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faq.map(([q, a]) => ({
+    '@type': 'Question',
+    name: q,
+    acceptedAnswer: { '@type': 'Answer', text: a },
+  })),
+});
+
+const LANDING_PAGES: RouteMeta[] = LANDINGS.map((l) => ({
+  path: `/${l.slug}`,
+  group: 'tool',
+  title: l.metaTitle,
+  description: l.metaDescription,
+  indexable: true,
+  changefreq: 'monthly',
+  priority: 0.9,
+  jsonLd: [
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebPage',
+      name: l.h1,
+      description: l.metaDescription,
+      url: `${SITE_URL}/${l.slug}`,
+      isPartOf: { '@type': 'WebSite', name: SITE_NAME, url: SITE_URL },
+    },
+    faqJsonLd(l.faq),
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        { '@type': 'ListItem', position: 1, name: 'Home', item: `${SITE_URL}/` },
+        { '@type': 'ListItem', position: 2, name: l.h1, item: `${SITE_URL}/${l.slug}` },
+      ],
+    },
+  ],
+}));
+
+export const ROUTES: RouteMeta[] = [...STATIC_PAGES, ...LANDING_PAGES, ...ARTICLE_PAGES];
 
 export function getRouteMeta(pathname: string): RouteMeta | undefined {
   const path = pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname;

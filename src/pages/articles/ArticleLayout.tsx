@@ -1,6 +1,8 @@
 import { Link, useParams, Navigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { ARTICLES } from './index.ts';
+import { LANDINGS } from '../landing/landings.ts';
+import { RelatedLinks } from '../../components/content/RelatedLinks.tsx';
 import { SupportArtists2026 } from './SupportArtists2026.tsx';
 import { BestPlatforms } from './BestPlatforms.tsx';
 import { SpotifyToDJSet } from './SpotifyToDJSet.tsx';
@@ -25,6 +27,14 @@ export function ArticleLayout() {
   if (!meta || !Content) {
     return <Navigate to="/blog" replace />;
   }
+
+  // Related: articles sharing the most tags, and the landing pages that cite this article.
+  const relatedArticles = ARTICLES.filter((a) => a.slug !== meta.slug)
+    .map((a) => ({ slug: a.slug, shared: a.tags.filter((t) => meta.tags.includes(t)).length }))
+    .sort((x, y) => y.shared - x.shared)
+    .slice(0, 2)
+    .map((a) => a.slug);
+  const relatedLandings = LANDINGS.filter((l) => l.relatedArticles.includes(meta.slug)).map((l) => l.slug);
 
   return (
     <div className="flex flex-col items-center gap-6 pt-12 pb-12">
@@ -57,6 +67,8 @@ export function ArticleLayout() {
       <article className="w-full max-w-2xl space-y-6">
         <Content />
       </article>
+
+      <RelatedLinks articleSlugs={relatedArticles} landingSlugs={relatedLandings} />
 
       {/* CTA */}
       <div className="w-full max-w-2xl">
