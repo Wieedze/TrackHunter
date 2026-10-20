@@ -34,18 +34,13 @@ component in `ArticleLayout.tsx`).
 
 ## Custom domain
 
-`track-hunter.com` already uses Cloudflare DNS. Its apex A records point to
-GitHub Pages (185.199.108-111.153, DNS only). To switch:
+`track-hunter.com` and `www.track-hunter.com` are custom domains of the
+`trackhunter` Worker (Settings → Domains), on Cloudflare DNS. The site moved off
+GitHub Pages on 2026-10-20 (its SPA 404 fallback hid every page but `/` from
+crawlers).
 
-1. Delete those four A records (and a `www` CNAME to `*.github.io` if any).
-2. Worker `trackhunter` → Settings → Domains & Routes → Add custom domain →
-   `track-hunter.com` (and `www.track-hunter.com`).
-3. Analytics: the Worker's Metrics tab counts requests; for visitor stats like
-   OddWave's, enable Web Analytics on the `track-hunter.com` site
-   (Analytics & Logs → Web Analytics → automatic setup).
-4. Once the domain answers from Cloudflare (`curl -sI https://track-hunter.com`
-   shows `server: cloudflare`), disable GitHub Pages and delete
-   `.github/workflows/deploy.yml` and `public/CNAME`.
+- `www` → apex: Rules → Redirect Rules → "Redirect from WWW to root".
+- Visitor stats: Analytics & Logs → Web Analytics on the `track-hunter.com` site.
 
 ## After the switch
 
